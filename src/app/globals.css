@@ -122,12 +122,15 @@ body {
 }
 
 /* ==========================================
-   Collaboration Caret Styles (TipTap v3)
+   Collaboration Caret & Cursor Styles
    ========================================== */
 
 /* The caret line (thin vertical bar) */
-.tiptap .collaboration-carets__caret {
-  border-left: 2px solid;
+.tiptap .collaboration-carets__caret,
+.tiptap .collaboration-cursor__caret,
+.ProseMirror .collaboration-carets__caret,
+.ProseMirror .collaboration-cursor__caret {
+  border-left: 2px solid currentColor;
   border-right: none;
   margin-left: -1px;
   margin-right: -1px;
@@ -137,9 +140,12 @@ body {
 }
 
 /* The name label floating above the caret */
-.tiptap .collaboration-carets__label {
+.tiptap .collaboration-carets__label,
+.tiptap .collaboration-cursor__label,
+.ProseMirror .collaboration-carets__label,
+.ProseMirror .collaboration-cursor__label {
   border-radius: 4px 4px 4px 0;
-  color: #fff;
+  color: #fff !important;
   font-size: 11px;
   font-weight: 700;
   font-family: system-ui, -apple-system, sans-serif;
@@ -151,14 +157,16 @@ body {
   user-select: none;
   white-space: nowrap;
   pointer-events: none;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-  z-index: 30;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  z-index: 50;
 }
 
 /* Collaborative active selection highlight */
-.ProseMirror .selection {
+.ProseMirror .selection,
+.tiptap .selection,
+.ProseMirror-selectednode {
   display: inline;
-  background-color: rgba(59, 130, 246, 0.2);
+  background-color: rgba(59, 130, 246, 0.25);
 }
 
 /* Print Styles for PDF export */

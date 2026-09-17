@@ -175,6 +175,16 @@ export default function CollaborativeEditor({
     };
   }, [wsProvider, ydoc]);
 
+  // Explicitly sync awareness state to WebSocket provider
+  useEffect(() => {
+    if (wsProvider && wsProvider.awareness && userName) {
+      wsProvider.awareness.setLocalStateField("user", {
+        name: userName,
+        color: userColor,
+      });
+    }
+  }, [wsProvider, userName, userColor]);
+
   const editor = useEditor(
     {
       editable: !isReadOnly,
