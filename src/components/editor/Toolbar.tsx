@@ -25,6 +25,7 @@ import {
   Maximize2,
   Minimize2,
   FileDown,
+  Image as ImageIcon,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -297,6 +298,21 @@ export default function Toolbar({
           isDark={isDark}
         >
           <Minus size={16} />
+        </ToolbarButton>
+
+        {/* Insert Image */}
+        <ToolbarButton
+          onClick={() => {
+            const url = window.prompt("Enter Image URL (e.g. https://images.unsplash.com/...):");
+            if (url) {
+              editor.chain().focus().setImage({ src: url.trim() }).run();
+            }
+          }}
+          isActive={editor.isActive("image")}
+          title="Insert Image by URL"
+          isDark={isDark}
+        >
+          <ImageIcon size={16} />
         </ToolbarButton>
 
         <Divider isDark={isDark} />

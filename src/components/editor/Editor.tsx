@@ -6,6 +6,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Collaboration from "@tiptap/extension-collaboration";
 import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
 import Underline from "@tiptap/extension-underline";
+import TipTapImage from "@tiptap/extension-image";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { IndexeddbPersistence } from "y-indexeddb";
@@ -13,6 +14,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import Toolbar from "./Toolbar";
 import OnlineUsers from "../presence/OnlineUsers";
 import DiagnosticsHUD from "../diagnostics/DiagnosticsHUD";
+import ShareModal from "./ShareModal";
 import {
   FileText,
   Clock,
@@ -63,9 +65,16 @@ export default function CollaborativeEditor({
     const doc = new Y.Doc();
     const color = getRandomColor();
 
+    // Determine WebSocket server URL (local or cloud)
+    const wsUrl =
+      process.env.NEXT_PUBLIC_WS_URL ||
+      (typeof window !== "undefined" && window.location.hostname !== "localhost"
+        ? "wss://demos.yjs.dev/ws"
+        : "ws://localhost:1234");
+
     // Connect to WebSocket server
     const provider = new WebsocketProvider(
-      "ws://localhost:1234",
+      wsUrl,
       documentId,
       doc
     );
@@ -141,6 +150,7 @@ function EditorSurface({
   const [isZenMode, setIsZenMode] = useState(false);
   const [followingUser, setFollowingUser] = useState<string | null>(null);
   const [networkCondition, setNetworkCondition] = useState<"normal" | "lag" | "offline">("normal");
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
@@ -225,6 +235,10 @@ function EditorSurface({
         undoRedo: false, // Collaborative history handled by Yjs
       }),
       Underline,
+      TipTapImage.configure({
+        inline: true,
+        allowBase64: true,
+      }),
       Collaboration.configure({
         document: ydoc,
       }),
@@ -358,12 +372,9 @@ function EditorSurface({
             {/* Share / Invite Button */}
             <button
               type="button"
-              onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                alert("📋 Document Link copied to clipboard!\n\nOpen this link in another tab / incognito window to join as Bob and collaborate in real-time.");
-              }}
+              onClick={() => setIsShareModalOpen(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition-all shadow-xs cursor-pointer"
-              title="Copy document invite link"
+              title="Share document via email or link"
             >
               <Share2 size={13} />
               <span className="hidden sm:inline">Invite / Share</span>
@@ -494,6 +505,15 @@ function EditorSurface({
           </button>
         </div>
       </footer>
+
+      {/* Google Docs-Style Share Modal */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        documentId={documentId}
+        documentTitle={title}
+        isDark={isDark}
+      />
 
       {/* Live CRDT & Distributed Systems Diagnostics HUD */}
       <DiagnosticsHUD

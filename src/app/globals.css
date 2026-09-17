@@ -112,6 +112,18 @@ body {
   text-decoration: underline;
 }
 
+.tiptap img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+  margin: 1.5em 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.tiptap img.ProseMirror-selectednode {
+  outline: 3px solid #3b82f6;
+}
+
 /* Empty placeholder */
 .tiptap p.is-editor-empty:first-child::before {
   content: "Start typing or collaborating in real time...";
