@@ -19,7 +19,6 @@ import { IndexeddbPersistence } from "y-indexeddb";
 import { useEffect, useState, useCallback, useRef } from "react";
 import Toolbar from "./Toolbar";
 import OnlineUsers from "../presence/OnlineUsers";
-import DiagnosticsHUD from "../diagnostics/DiagnosticsHUD";
 import ShareModal from "./ShareModal";
 import TeamChat from "../chat/TeamChat";
 import VersionHistoryModal from "../history/VersionHistoryModal";
@@ -563,7 +562,7 @@ function EditorSurface({
         </div>
       </div>
 
-      {/* Bottom Status & Telemetry Bar */}
+      {/* Bottom Status Bar (Real-Time Stats Only) */}
       <footer
         className={`flex items-center justify-between px-4 py-1.5 border-t text-xs select-none transition-colors ${
           isDark
@@ -586,74 +585,17 @@ function EditorSurface({
               {status === "connected" ? (synced ? "Synced · Real-time" : "Syncing...") : status}
             </span>
           </div>
-
-          <div className="h-3 w-px bg-gray-300 dark:bg-gray-700 hidden sm:block" />
-
-          {/* Word / Char Stats */}
-          <div className="flex items-center gap-3 text-[11px] hidden sm:flex">
-            <span>{wordCount} words</span>
-            <span>·</span>
-            <span>{charCount} chars</span>
-            <span>·</span>
-            <span className="flex items-center gap-1">
-              <Clock size={12} /> {Math.ceil(wordCount / 200) || 1} min read
-            </span>
-          </div>
         </div>
 
-        <div className="flex items-center gap-3 text-[11px]">
-          {/* Quick DocPilot, Polls, Chat & History Triggers */}
-          <button
-            type="button"
-            onClick={() => setIsDocPilotOpen(true)}
-            className="flex items-center gap-1 text-purple-400 hover:underline cursor-pointer font-semibold"
-          >
-            <Sparkles size={12} />
-            <span>DocPilot</span>
-          </button>
+        {/* Real-time word & char count */}
+        <div className="flex items-center gap-3 text-[11px] font-medium">
+          <span>{wordCount} words</span>
           <span>·</span>
-          <button
-            type="button"
-            onClick={() => setIsPollModalOpen(true)}
-            className="flex items-center gap-1 text-amber-500 hover:underline cursor-pointer font-medium"
-          >
-            <Vote size={12} />
-            <span>Polls</span>
-          </button>
+          <span>{charCount} characters</span>
           <span>·</span>
-          <button
-            type="button"
-            onClick={() => setIsChatOpen(!isChatOpen)}
-            className="flex items-center gap-1 text-blue-500 hover:underline cursor-pointer"
-          >
-            <MessageSquare size={12} />
-            <span>Chat</span>
-          </button>
-          <span>·</span>
-          <button
-            type="button"
-            onClick={() => setIsHistoryModalOpen(true)}
-            className="flex items-center gap-1 text-purple-500 hover:underline cursor-pointer"
-          >
-            <History size={12} />
-            <span>History</span>
-          </button>
-          <span>·</span>
-          <span className="font-semibold text-blue-500 hidden md:inline">Yjs YATA CRDT</span>
-          <span>·</span>
-          <button
-            type="button"
-            onClick={() => {
-              localStorage.removeItem("docfix-active-user");
-              localStorage.removeItem("docfix-username");
-              localStorage.removeItem("docfix-userrole");
-              window.location.reload();
-            }}
-            className="hover:underline text-blue-500 cursor-pointer"
-            title="Click to switch profile / user"
-          >
-            User: <strong>{userName}</strong> (Switch)
-          </button>
+          <span className="flex items-center gap-1">
+            <Clock size={12} /> {Math.ceil(wordCount / 200) || 1} min read
+          </span>
         </div>
       </footer>
 
@@ -702,15 +644,6 @@ function EditorSurface({
         editor={editor}
         currentUserName={userName}
         isDark={isDark}
-      />
-
-      {/* Live CRDT & Distributed Systems Diagnostics HUD */}
-      <DiagnosticsHUD
-        ydoc={ydoc}
-        provider={wsProvider}
-        documentId={documentId}
-        isDark={isDark}
-        networkCondition={networkCondition}
       />
     </div>
   );
