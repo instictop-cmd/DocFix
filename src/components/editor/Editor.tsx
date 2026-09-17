@@ -262,28 +262,47 @@ function EditorSurface({
     setActiveHeading(currentH);
   }, []);
 
-  // Sync title
+  // Helper to update document title in localStorage
+  const updateLocalStorageTitle = useCallback((newTitle: string) => {
+    try {
+      const saved = localStorage.getItem("synora-documents");
+      if (saved) {
+        const docs = JSON.parse(saved);
+        const idx = docs.findIndex((d: { id: string }) => d.id === documentId);
+        if (idx !== -1) {
+          docs[idx].title = newTitle || "Untitled Document";
+          docs[idx].lastOpened = new Date().toISOString();
+          localStorage.setItem("synora-documents", JSON.stringify(docs));
+        }
+      }
+    } catch {}
+  }, [documentId]);
+
+  // Sync title from Yjs & LocalStorage
   useEffect(() => {
     const updateTitle = () => {
-      let remoteTitle = (yMeta.get("title") as string) || "";
-      if (!remoteTitle) {
+      const remoteTitle = yMeta.get("title");
+      if (typeof remoteTitle === "string") {
+        setTitle(remoteTitle);
+      } else {
+        // Initial load when yMeta doesn't have a title yet
+        let initialTitle = "Untitled Document";
         try {
           const saved = localStorage.getItem("synora-documents");
           if (saved) {
             const docs = JSON.parse(saved);
             const found = docs.find((d: { id: string; title: string }) => d.id === documentId);
             if (found && found.title) {
-              remoteTitle = found.title;
-              if (!isReadOnly) {
-                yMeta.set("title", remoteTitle);
-              }
+              initialTitle = found.title;
             }
           }
         } catch {}
-      }
 
-      const finalTitle = remoteTitle || "Untitled Document";
-      setTitle(finalTitle);
+        if (!isReadOnly) {
+          yMeta.set("title", initialTitle);
+        }
+        setTitle(initialTitle);
+      }
     };
 
     yMeta.observe(updateTitle);
@@ -298,6 +317,17 @@ function EditorSurface({
     if (isReadOnly) return;
     setTitle(newTitle);
     yMeta.set("title", newTitle);
+    updateLocalStorageTitle(newTitle);
+  };
+
+  const handleTitleBlur = () => {
+    if (isReadOnly) return;
+    if (!title.trim()) {
+      const defaultTitle = "Untitled Document";
+      setTitle(defaultTitle);
+      yMeta.set("title", defaultTitle);
+      updateLocalStorageTitle(defaultTitle);
+    }
   };
 
   // Connection status tracking
@@ -597,6 +627,7 @@ function EditorSurface({
               value={title}
               disabled={isReadOnly}
               onChange={(e) => handleTitleChange(e.target.value)}
+              onBlur={handleTitleBlur}
               placeholder="Untitled Document"
               className={`text-sm sm:text-base font-semibold px-2 py-0.5 rounded-md transition-all max-w-[160px] sm:max-w-xs md:max-w-md focus:outline-none focus:ring-1 focus:ring-blue-500/50 ${
                 isDark
