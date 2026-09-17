@@ -7,6 +7,12 @@ import Collaboration from "@tiptap/extension-collaboration";
 import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
 import Underline from "@tiptap/extension-underline";
 import TipTapImage from "@tiptap/extension-image";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TaskList } from "@tiptap/extension-task-list";
+import { TaskItem } from "@tiptap/extension-task-item";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { IndexeddbPersistence } from "y-indexeddb";
@@ -18,6 +24,7 @@ import ShareModal from "./ShareModal";
 import TeamChat from "../chat/TeamChat";
 import VersionHistoryModal from "../history/VersionHistoryModal";
 import DocPilotModal from "../ai/DocPilotModal";
+import PollModal from "../polls/PollModal";
 import {
   FileText,
   Clock,
@@ -31,6 +38,7 @@ import {
   MessageSquare,
   History,
   Sparkles,
+  Vote,
 } from "lucide-react";
 
 // Pre-defined color palette
@@ -162,6 +170,7 @@ function EditorSurface({
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isDocPilotOpen, setIsDocPilotOpen] = useState(false);
+  const [isPollModalOpen, setIsPollModalOpen] = useState(false);
 
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
@@ -238,7 +247,7 @@ function EditorSurface({
     };
   }, [wsProvider]);
 
-  // TipTap v3 Editor initialization
+  // TipTap v3 Editor initialization with Table & TaskList extensions
   const editor = useEditor({
     editable: !isReadOnly,
     extensions: [
@@ -249,6 +258,16 @@ function EditorSurface({
       TipTapImage.configure({
         inline: true,
         allowBase64: true,
+      }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
+      TaskList,
+      TaskItem.configure({
+        nested: true,
       }),
       Collaboration.configure({
         document: ydoc,
@@ -515,6 +534,7 @@ function EditorSurface({
         onToggleChat={() => setIsChatOpen(!isChatOpen)}
         isChatOpen={isChatOpen}
         onOpenDocPilot={() => setIsDocPilotOpen(true)}
+        onOpenPolls={() => setIsPollModalOpen(true)}
       />
 
       {/* Main Canvas Area */}
@@ -582,7 +602,7 @@ function EditorSurface({
         </div>
 
         <div className="flex items-center gap-3 text-[11px]">
-          {/* Quick DocPilot, Chat & History Triggers */}
+          {/* Quick DocPilot, Polls, Chat & History Triggers */}
           <button
             type="button"
             onClick={() => setIsDocPilotOpen(true)}
@@ -590,6 +610,15 @@ function EditorSurface({
           >
             <Sparkles size={12} />
             <span>DocPilot</span>
+          </button>
+          <span>·</span>
+          <button
+            type="button"
+            onClick={() => setIsPollModalOpen(true)}
+            className="flex items-center gap-1 text-amber-500 hover:underline cursor-pointer font-medium"
+          >
+            <Vote size={12} />
+            <span>Polls</span>
           </button>
           <span>·</span>
           <button
@@ -633,6 +662,16 @@ function EditorSurface({
         isOpen={isDocPilotOpen}
         onClose={() => setIsDocPilotOpen(false)}
         editor={editor}
+        isDark={isDark}
+      />
+
+      {/* Collaborative Live Polls Modal */}
+      <PollModal
+        isOpen={isPollModalOpen}
+        onClose={() => setIsPollModalOpen(false)}
+        ydoc={ydoc}
+        editor={editor}
+        currentUserName={userName}
         isDark={isDark}
       />
 

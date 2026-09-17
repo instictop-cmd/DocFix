@@ -124,6 +124,81 @@ body {
   outline: 3px solid #3b82f6;
 }
 
+/* ==========================================
+   Interactive Task List & Checklists
+   ========================================== */
+
+ul[data-type="taskList"] {
+  list-style: none;
+  padding: 0;
+  margin: 0.8em 0;
+}
+
+ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0.4em 0;
+}
+
+ul[data-type="taskList"] li > label {
+  user-select: none;
+  margin-top: 0.15rem;
+  cursor: pointer;
+}
+
+ul[data-type="taskList"] li > label input[type="checkbox"] {
+  cursor: pointer;
+  width: 1.15em;
+  height: 1.15em;
+  accent-color: #4f46e5;
+  border-radius: 4px;
+}
+
+ul[data-type="taskList"] li[data-checked="true"] > div {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+/* ==========================================
+   Collaborative Grid Tables
+   ========================================== */
+
+.tiptap table {
+  border-collapse: collapse;
+  margin: 1.5em 0;
+  width: 100%;
+  table-layout: fixed;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+.tiptap table td,
+.tiptap table th {
+  min-width: 1em;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  padding: 8px 12px;
+  vertical-align: top;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.tiptap table th {
+  font-weight: 700;
+  text-align: left;
+  background-color: rgba(99, 102, 241, 0.08);
+}
+
+.tiptap table .selectedCell:after {
+  z-index: 2;
+  position: absolute;
+  content: "";
+  left: 0; right: 0; top: 0; bottom: 0;
+  background: rgba(59, 130, 246, 0.15);
+  pointer-events: none;
+}
+
 /* Empty placeholder */
 .tiptap p.is-editor-empty:first-child::before {
   content: "Start typing or collaborating in real time...";

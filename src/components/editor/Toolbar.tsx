@@ -29,6 +29,11 @@ import {
   History,
   MessageSquare,
   Sparkles,
+  CheckSquare,
+  Table as TableIcon,
+  Vote,
+  PlusSquare,
+  Trash2,
 } from "lucide-react";
 import { useState } from "react";
 import ImageModal from "./ImageModal";
@@ -45,6 +50,7 @@ interface ToolbarProps {
   onToggleChat?: () => void;
   isChatOpen?: boolean;
   onOpenDocPilot?: () => void;
+  onOpenPolls?: () => void;
 }
 
 interface ToolbarButtonProps {
@@ -107,8 +113,10 @@ export default function Toolbar({
   onToggleChat,
   isChatOpen = false,
   onOpenDocPilot,
+  onOpenPolls,
 }: ToolbarProps) {
   const [showExportMenu, setShowExportMenu] = useState(false);
+  const [showTableMenu, setShowTableMenu] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
   // Insert image handler
@@ -161,6 +169,16 @@ export default function Toolbar({
           <span>You are viewing this document in <strong>Read-Only Mode</strong> (Viewer).</span>
         </div>
         <div className="flex items-center gap-2">
+          {onOpenPolls && (
+            <button
+              type="button"
+              onClick={onOpenPolls}
+              className="flex items-center gap-1 px-2.5 py-1 rounded hover:bg-amber-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 cursor-pointer text-xs"
+            >
+              <Vote size={14} />
+              <span>Polls</span>
+            </button>
+          )}
           {onOpenHistory && (
             <button
               type="button"
@@ -308,7 +326,7 @@ export default function Toolbar({
 
           <Divider isDark={isDark} />
 
-          {/* Lists */}
+          {/* Lists & Task Checklists */}
           <ToolbarButton
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             isActive={editor.isActive("bulletList")}
@@ -325,8 +343,109 @@ export default function Toolbar({
           >
             <ListOrdered size={16} />
           </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().toggleTaskList().run()}
+            isActive={editor.isActive("taskList")}
+            title="Interactive Task Checklist (To-Do)"
+            isDark={isDark}
+          >
+            <CheckSquare size={16} />
+          </ToolbarButton>
 
           <Divider isDark={isDark} />
+
+          {/* Collaborative Grid Tables Dropdown */}
+          <div className="relative">
+            <ToolbarButton
+              onClick={() => setShowTableMenu(!showTableMenu)}
+              isActive={editor.isActive("table")}
+              title="Collaborative Grid Tables"
+              isDark={isDark}
+            >
+              <TableIcon size={16} />
+            </ToolbarButton>
+
+            {showTableMenu && (
+              <div
+                className={`absolute left-0 mt-1 w-48 rounded-xl shadow-2xl border py-1.5 z-50 text-xs ${
+                  isDark
+                    ? "bg-gray-900 border-gray-700 text-gray-200"
+                    : "bg-white border-gray-200 text-gray-700"
+                }`}
+              >
+                <button
+                  type="button"
+                  onClick={() => {
+                    editor
+                      .chain()
+                      .focus()
+                      .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                      .run();
+                    setShowTableMenu(false);
+                  }}
+                  className="w-full px-3 py-1.5 text-left hover:bg-blue-600 hover:text-white flex items-center gap-2 cursor-pointer"
+                >
+                  <PlusSquare size={13} /> Insert 3x3 Table
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    editor.chain().focus().addRowAfter().run();
+                    setShowTableMenu(false);
+                  }}
+                  disabled={!editor.can().addRowAfter()}
+                  className="w-full px-3 py-1.5 text-left hover:bg-blue-600 hover:text-white disabled:opacity-30 flex items-center gap-2 cursor-pointer"
+                >
+                  ➕ Add Row Below
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    editor.chain().focus().addColumnAfter().run();
+                    setShowTableMenu(false);
+                  }}
+                  disabled={!editor.can().addColumnAfter()}
+                  className="w-full px-3 py-1.5 text-left hover:bg-blue-600 hover:text-white disabled:opacity-30 flex items-center gap-2 cursor-pointer"
+                >
+                  ➕ Add Column Right
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    editor.chain().focus().deleteRow().run();
+                    setShowTableMenu(false);
+                  }}
+                  disabled={!editor.can().deleteRow()}
+                  className="w-full px-3 py-1.5 text-left hover:bg-red-600 hover:text-white disabled:opacity-30 flex items-center gap-2 cursor-pointer"
+                >
+                  ➖ Delete Row
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    editor.chain().focus().deleteColumn().run();
+                    setShowTableMenu(false);
+                  }}
+                  disabled={!editor.can().deleteColumn()}
+                  className="w-full px-3 py-1.5 text-left hover:bg-red-600 hover:text-white disabled:opacity-30 flex items-center gap-2 cursor-pointer"
+                >
+                  ➖ Delete Column
+                </button>
+                <div className="border-t my-1 border-gray-200 dark:border-gray-800" />
+                <button
+                  type="button"
+                  onClick={() => {
+                    editor.chain().focus().deleteTable().run();
+                    setShowTableMenu(false);
+                  }}
+                  disabled={!editor.can().deleteTable()}
+                  className="w-full px-3 py-1.5 text-left hover:bg-red-600 hover:text-white text-red-500 disabled:opacity-30 flex items-center gap-2 cursor-pointer font-medium"
+                >
+                  <Trash2 size={13} /> Delete Table
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Block elements */}
           <ToolbarButton
@@ -345,7 +464,7 @@ export default function Toolbar({
             <Minus size={16} />
           </ToolbarButton>
 
-          {/* Supercharged Insert Image (File Upload + URL + Presets) */}
+          {/* Supercharged Insert Image */}
           <ToolbarButton
             onClick={() => setIsImageModalOpen(true)}
             isActive={editor.isActive("image")}
@@ -369,8 +488,25 @@ export default function Toolbar({
           </ToolbarButton>
         </div>
 
-        {/* Right side actions: History, Chat, Zen Mode, Dark Mode, Export */}
+        {/* Right side actions: Polls, History, Chat, Zen Mode, Dark Mode, Export */}
         <div className="flex items-center gap-1">
+          {/* Collaborative Polls Button */}
+          {onOpenPolls && (
+            <button
+              type="button"
+              onClick={onOpenPolls}
+              className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-semibold transition-colors cursor-pointer ${
+                isDark
+                  ? "text-amber-400 hover:bg-amber-950/40"
+                  : "text-amber-700 hover:bg-amber-100/70"
+              }`}
+              title="Real-Time Collaborative Polls"
+            >
+              <Vote size={14} />
+              <span className="hidden sm:inline">Polls</span>
+            </button>
+          )}
+
           {/* Version History Button */}
           {onOpenHistory && (
             <button
