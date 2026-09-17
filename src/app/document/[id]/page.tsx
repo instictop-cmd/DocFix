@@ -40,22 +40,52 @@ export default function DocumentPage() {
   const [userName, setUserName] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<"editor" | "viewer">(urlRole);
   const [nameInput, setNameInput] = useState("");
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  // Check if user has a name saved
+  // Restore saved username immediately on mount
   useEffect(() => {
-    const savedName = localStorage.getItem("docfix-username");
-    if (savedName) {
-      setUserName(savedName);
+    try {
+      const savedName =
+        localStorage.getItem("docfix-username") ||
+        localStorage.getItem("synora-username");
+      const savedRole = localStorage.getItem("docfix-userrole") as
+        | "editor"
+        | "viewer"
+        | null;
+
+      if (savedName) {
+        setUserName(savedName);
+      }
+      if (savedRole && !searchParams.get("role")) {
+        setUserRole(savedRole);
+      }
+    } catch {
+      // Ignore localStorage errors
+    } finally {
+      setIsCheckingAuth(false);
     }
-  }, []);
+  }, [searchParams]);
 
   const handleJoinWithProfile = (name: string, role: "editor" | "viewer") => {
     localStorage.setItem("docfix-username", name);
+    localStorage.setItem("docfix-userrole", role);
     setUserName(name);
     setUserRole(role);
   };
 
-  // Name / Profile Entry Screen
+  // Fast loading state during initial localStorage check (prevents flash of join screen)
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+        <div className="flex items-center gap-3 text-blue-400">
+          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-sm font-medium text-slate-300">Loading document...</span>
+        </div>
+      </div>
+    );
+  }
+
+  // Name / Profile Entry Screen (Only shown if user has never selected a name)
   if (!userName) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex items-center justify-center p-4">

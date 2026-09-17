@@ -372,7 +372,17 @@ export default function CollaborativeEditor({
         <div className="flex items-center gap-3 text-[11px]">
           <span className="font-semibold text-blue-500 hidden md:inline">Yjs YATA CRDT</span>
           <span>·</span>
-          <span>Client: {userName}</span>
+          <button
+            type="button"
+            onClick={() => {
+              localStorage.removeItem("docfix-username");
+              window.location.reload();
+            }}
+            className="hover:underline text-blue-500 cursor-pointer"
+            title="Click to switch profile / user"
+          >
+            User: <strong>{userName}</strong> (Switch)
+          </button>
         </div>
       </footer>
 
