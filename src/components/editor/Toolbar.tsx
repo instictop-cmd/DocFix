@@ -43,6 +43,14 @@ import {
 import { useState } from "react";
 import ImageModal from "./ImageModal";
 
+import {
+  exportPagesAsMarkdown,
+  exportPagesAsHTML,
+  printSpecificPages,
+  getDocumentPages,
+  parsePageRange,
+} from "../../lib/pageExportUtils";
+
 interface ToolbarProps {
   editor: Editor;
   isDark: boolean;
@@ -125,6 +133,7 @@ export default function Toolbar({
   const [showColorMenu, setShowColorMenu] = useState(false);
   const [showHighlightMenu, setShowHighlightMenu] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [exportRangeInput, setExportRangeInput] = useState("all");
 
   // Text colors palette
   const TEXT_COLORS = [
@@ -153,34 +162,18 @@ export default function Toolbar({
     editor.chain().focus().setImage({ src: url }).run();
   };
 
-  // Export handlers
-  const exportAsMarkdown = () => {
-    const text = editor.getText();
-    const blob = new Blob([text], { type: "text/markdown;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${documentTitle || "document"}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
-    setShowExportMenu(false);
-  };
+  // Export handlers supporting full doc or specific page ranges
+  const handleExport = (format: "md" | "html" | "pdf") => {
+    const totalPages = getDocumentPages(editor).length;
+    const targetPages = parsePageRange(exportRangeInput, totalPages);
 
-  const exportAsHTML = () => {
-    const html = editor.getHTML();
-    const fullHTML = `<!DOCTYPE html><html><head><title>${documentTitle}</title></head><body>${html}</body></html>`;
-    const blob = new Blob([fullHTML], { type: "text/html;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${documentTitle || "document"}.html`;
-    a.click();
-    URL.revokeObjectURL(url);
-    setShowExportMenu(false);
-  };
-
-  const exportAsPDF = () => {
-    window.print();
+    if (format === "md") {
+      exportPagesAsMarkdown(editor, targetPages, documentTitle);
+    } else if (format === "html") {
+      exportPagesAsHTML(editor, targetPages, documentTitle);
+    } else if (format === "pdf") {
+      printSpecificPages(editor, targetPages, documentTitle);
+    }
     setShowExportMenu(false);
   };
 
@@ -762,29 +755,49 @@ export default function Toolbar({
 
               {showExportMenu && (
                 <div
-                  className={`absolute right-0 mt-1.5 w-44 rounded-xl shadow-xl border p-1 z-50 text-xs animate-in fade-in zoom-in-95 duration-100 ${
+                  className={`absolute right-0 mt-1.5 w-52 rounded-xl shadow-xl border p-2 z-50 text-xs animate-in fade-in zoom-in-95 duration-100 ${
                     isDark
                       ? "bg-gray-900 border-gray-700 text-gray-200"
                       : "bg-white border-gray-200 text-gray-700"
                   }`}
                 >
+                  <div className="mb-2 pb-1.5 border-b border-gray-200 dark:border-gray-800">
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                      Pages to Export
+                    </label>
+                    <input
+                      type="text"
+                      value={exportRangeInput}
+                      onChange={(e) => setExportRangeInput(e.target.value)}
+                      placeholder='e.g. "all", "1", "1-2"'
+                      className={`w-full px-2 py-1 text-xs rounded-lg border focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                        isDark
+                          ? "bg-gray-800 border-gray-700 text-white"
+                          : "bg-gray-50 border-gray-200 text-gray-900"
+                      }`}
+                    />
+                    <span className="text-[9px] text-gray-400 mt-0.5 block">
+                      Type <strong>all</strong>, or <strong>1</strong>, <strong>1-3</strong>
+                    </span>
+                  </div>
+
                   <button
                     type="button"
-                    onClick={exportAsMarkdown}
+                    onClick={() => handleExport("md")}
                     className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-blue-600 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     <FileDown size={13} /> Markdown (.md)
                   </button>
                   <button
                     type="button"
-                    onClick={exportAsHTML}
+                    onClick={() => handleExport("html")}
                     className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-blue-600 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     <FileDown size={13} /> HTML (.html)
                   </button>
                   <button
                     type="button"
-                    onClick={exportAsPDF}
+                    onClick={() => handleExport("pdf")}
                     className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-blue-600 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     <FileDown size={13} /> Print / Save as PDF

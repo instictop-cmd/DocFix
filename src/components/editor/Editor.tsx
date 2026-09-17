@@ -177,6 +177,12 @@ function EditorSurface({
   const [isFindReplaceOpen, setIsFindReplaceOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [isPagesPanelOpen, setIsPagesPanelOpen] = useState(false);
+
+  // Dynamic Page & Section Tracking
+  const [currentViewPage, setCurrentViewPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [activeHeading, setActiveHeading] = useState("");
+  const canvasContainerRef = useRef<HTMLDivElement>(null);
   
   // Modals & Drawers
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -222,6 +228,39 @@ function EditorSurface({
     setIsPaginated(next);
     localStorage.setItem("docfix-viewmode", next ? "paginated" : "pageless");
   };
+
+  // Dynamic scroll observer to detect which page & heading is active
+  const handleCanvasScroll = useCallback(() => {
+    if (!canvasContainerRef.current) return;
+    const container = canvasContainerRef.current;
+    const containerTop = container.getBoundingClientRect().top;
+    const allHrs = container.querySelectorAll(".tiptap hr");
+
+    let pageNum = 1;
+    allHrs.forEach((hr, idx) => {
+      const hrTop = hr.getBoundingClientRect().top - containerTop;
+      if (hrTop <= 250) {
+        pageNum = idx + 2;
+      }
+    });
+
+    setCurrentViewPage(pageNum);
+    setTotalPages(Math.max(1, allHrs.length + 1));
+
+    // Detect nearest heading above current viewport
+    const allHeadings = container.querySelectorAll(".tiptap h1, .tiptap h2, .tiptap h3");
+    let currentH = "";
+    allHeadings.forEach((h) => {
+      const hTop = h.getBoundingClientRect().top - containerTop;
+      if (hTop <= 250) {
+        currentH = h.textContent || "";
+      }
+    });
+    if (currentH.length > 25) {
+      currentH = currentH.substring(0, 25) + "...";
+    }
+    setActiveHeading(currentH);
+  }, []);
 
   // Sync title
   useEffect(() => {
@@ -577,6 +616,19 @@ function EditorSurface({
                 Editor
               </span>
             )}
+
+            {/* Dynamic Active Section & Page Breadcrumb */}
+            {activeHeading && (
+              <div className="hidden xl:flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium animate-in fade-in duration-150">
+                <span className="text-gray-300 dark:text-gray-700">›</span>
+                <span className="truncate max-w-[140px] text-gray-700 dark:text-gray-300 font-semibold">
+                  {activeHeading}
+                </span>
+                <span className="px-1.5 py-0.2 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded text-[10px] font-bold">
+                  Page {currentViewPage}/{totalPages}
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="flex items-center gap-2 sm:gap-2.5">
@@ -662,11 +714,14 @@ function EditorSurface({
             isOpen={isPagesPanelOpen}
             onClose={() => setIsPagesPanelOpen(false)}
             isDark={isDark}
+            documentTitle={title}
           />
         )}
 
-        {/* Main Canvas Area */}
+        {/* Main Canvas Area with dynamic scroll tracking */}
         <div
+          ref={canvasContainerRef}
+          onScroll={handleCanvasScroll}
           className={`flex-1 overflow-y-auto cursor-text ${isDark ? "bg-[#0B0F17]" : "bg-[#F8F9FA]"}`}
           onClick={() => {
             if (!editor.isFocused) {
@@ -695,15 +750,15 @@ function EditorSurface({
               }
             }}
           >
-            {/* Paginated Header Indicator */}
+            {/* Dynamic Paginated Header Indicator */}
             {isPaginated && (
               <div
-                className={`px-16 pt-6 pb-2 text-[10px] uppercase font-semibold tracking-wider flex justify-between border-b select-none ${
+                className={`px-16 pt-6 pb-2 text-[10px] uppercase font-semibold tracking-wider flex justify-between border-b select-none transition-colors ${
                   isDark ? "text-gray-500 border-gray-800" : "text-gray-400 border-gray-100"
                 }`}
               >
-                <span>DocFix Document · {title}</span>
-                <span>A4 Page 1</span>
+                <span>DocFix · {title} {activeHeading ? `› ${activeHeading}` : ""}</span>
+                <span className="text-blue-600 dark:text-blue-400 font-bold">A4 Page {currentViewPage} of {totalPages}</span>
               </div>
             )}
 
