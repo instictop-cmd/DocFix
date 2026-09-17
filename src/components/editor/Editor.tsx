@@ -22,6 +22,7 @@ import {
   Eye,
   CheckCircle2,
   Lock,
+  Share2,
 } from "lucide-react";
 
 // Pre-defined color palette
@@ -305,13 +306,27 @@ export default function CollaborativeEditor({
             )}
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Share / Invite Button */}
+            <button
+              type="button"
+              onClick={() => {
+                navigator.clipboard.writeText(window.location.href);
+                alert("📋 Document Link copied to clipboard!\n\nOpen this link in another tab / incognito window to join as Bob and collaborate in real-time.");
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition-all shadow-xs cursor-pointer"
+              title="Copy document invite link"
+            >
+              <Share2 size={13} />
+              <span className="hidden sm:inline">Invite / Share</span>
+            </button>
+
             {/* Chaos / Network Simulation Dropdown */}
             <div className="flex items-center gap-1 text-xs">
               <select
                 value={networkCondition}
                 onChange={(e) => handleNetworkChange(e.target.value as "normal" | "lag" | "offline")}
-                className={`text-xs px-2.5 py-1 rounded-md font-medium border transition-colors cursor-pointer focus:outline-none ${
+                className={`text-xs px-2.5 py-1.5 rounded-lg font-medium border transition-colors cursor-pointer focus:outline-none ${
                   networkCondition === "offline"
                     ? "bg-red-500/10 text-red-500 border-red-500/30"
                     : networkCondition === "lag"
@@ -322,9 +337,9 @@ export default function CollaborativeEditor({
                 }`}
                 title="Simulate network conditions for judging"
               >
-                <option value="normal">⚡ Online (Normal)</option>
-                <option value="lag">🐢 Latency (500ms lag)</option>
-                <option value="offline">🔌 Offline (Partition)</option>
+                <option value="normal">⚡ Online</option>
+                <option value="lag">🐢 500ms Lag</option>
+                <option value="offline">🔌 Offline</option>
               </select>
             </div>
 
@@ -350,13 +365,26 @@ export default function CollaborativeEditor({
       />
 
       {/* Main Canvas Area */}
-      <div className={`flex-1 overflow-y-auto ${isDark ? "bg-gray-950" : "bg-gray-100/70"}`}>
+      <div
+        className={`flex-1 overflow-y-auto cursor-text ${isDark ? "bg-gray-950" : "bg-gray-100/70"}`}
+        onClick={() => {
+          if (!editor.isFocused) {
+            editor.commands.focus("end");
+          }
+        }}
+      >
         <div
           className={`max-w-4xl mx-auto my-6 rounded-xl shadow-xs border transition-all min-h-[750px] ${
             isDark
               ? "bg-gray-900 border-gray-800 text-gray-100"
               : "bg-white border-gray-200 text-gray-900"
           }`}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (!editor.isFocused) {
+              editor.commands.focus();
+            }
+          }}
         >
           <EditorContent editor={editor} />
         </div>
