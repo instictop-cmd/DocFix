@@ -34,6 +34,11 @@ import {
   Vote,
   PlusSquare,
   Trash2,
+  Search,
+  Highlighter as HighlighterIcon,
+  Baseline,
+  FileText,
+  Layers,
 } from "lucide-react";
 import { useState } from "react";
 import ImageModal from "./ImageModal";
@@ -51,6 +56,9 @@ interface ToolbarProps {
   isChatOpen?: boolean;
   onOpenDocPilot?: () => void;
   onOpenPolls?: () => void;
+  isPaginated?: boolean;
+  onTogglePaginated?: () => void;
+  onOpenFindReplace?: () => void;
 }
 
 interface ToolbarButtonProps {
@@ -104,10 +112,37 @@ export default function Toolbar({
   isChatOpen = false,
   onOpenDocPilot,
   onOpenPolls,
+  isPaginated = false,
+  onTogglePaginated,
+  onOpenFindReplace,
 }: ToolbarProps) {
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [showTableMenu, setShowTableMenu] = useState(false);
+  const [showColorMenu, setShowColorMenu] = useState(false);
+  const [showHighlightMenu, setShowHighlightMenu] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+
+  // Text colors palette
+  const TEXT_COLORS = [
+    { name: "Default", color: "inherit" },
+    { name: "Slate", color: "#475569" },
+    { name: "Blue", color: "#2563eb" },
+    { name: "Emerald", color: "#059669" },
+    { name: "Red", color: "#dc2626" },
+    { name: "Amber", color: "#d97706" },
+    { name: "Purple", color: "#7c3aed" },
+    { name: "Pink", color: "#db2777" },
+  ];
+
+  // Highlighter pastel markers
+  const HIGHLIGHT_COLORS = [
+    { name: "Yellow", color: "#fef08a", border: "#fde047" },
+    { name: "Green", color: "#bbf7d0", border: "#86efac" },
+    { name: "Cyan", color: "#bae6fd", border: "#7dd3fc" },
+    { name: "Lavender", color: "#e9d5ff", border: "#d8b4fe" },
+    { name: "Pink", color: "#fbcfe8", border: "#f472b6" },
+    { name: "Peach", color: "#fed7aa", border: "#fdba74" },
+  ];
 
   // Insert image handler
   const handleInsertImage = (url: string) => {
@@ -163,6 +198,16 @@ export default function Toolbar({
           <span>You are viewing this document in <strong>Read-Only Mode</strong> (Viewer).</span>
         </div>
         <div className="flex items-center gap-1.5">
+          {onOpenFindReplace && (
+            <button
+              type="button"
+              onClick={onOpenFindReplace}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md hover:bg-amber-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 cursor-pointer text-xs font-semibold transition-all active:scale-95"
+            >
+              <Search size={13} />
+              <span>Find</span>
+            </button>
+          )}
           {onOpenPolls && (
             <button
               type="button"
@@ -242,7 +287,7 @@ export default function Toolbar({
             </ToolbarButton>
           </div>
 
-          {/* Group 2: Typography Marks */}
+          {/* Group 2: Typography Marks & Color/Highlighter */}
           <div className={pillContainerClass}>
             <ToolbarButton
               onClick={() => editor.chain().focus().toggleBold().run()}
@@ -284,6 +329,112 @@ export default function Toolbar({
             >
               <Code size={15} />
             </ToolbarButton>
+
+            {/* Text Color Picker Dropdown */}
+            <div className="relative">
+              <ToolbarButton
+                onClick={() => {
+                  setShowColorMenu(!showColorMenu);
+                  setShowHighlightMenu(false);
+                }}
+                isActive={showColorMenu}
+                title="Text Color"
+                isDark={isDark}
+              >
+                <div className="flex flex-col items-center justify-center">
+                  <Baseline size={13} />
+                  <div
+                    className="w-3 h-0.5 rounded-full mt-0.5"
+                    style={{
+                      backgroundColor:
+                        editor.getAttributes("textStyle").color ||
+                        (isDark ? "#93C5FD" : "#2563EB"),
+                    }}
+                  />
+                </div>
+              </ToolbarButton>
+
+              {showColorMenu && (
+                <div
+                  className={`absolute left-0 mt-1.5 p-2 rounded-xl shadow-2xl border z-50 text-xs animate-in fade-in zoom-in-95 duration-100 grid grid-cols-4 gap-1.5 w-36 ${
+                    isDark
+                      ? "bg-gray-900 border-gray-700"
+                      : "bg-white border-gray-200"
+                  }`}
+                >
+                  {TEXT_COLORS.map((c) => (
+                    <button
+                      key={c.name}
+                      type="button"
+                      onClick={() => {
+                        if (c.color === "inherit") {
+                          editor.chain().focus().unsetColor().run();
+                        } else {
+                          editor.chain().focus().setColor(c.color).run();
+                        }
+                        setShowColorMenu(false);
+                      }}
+                      className="w-6 h-6 rounded-md flex items-center justify-center border border-gray-200 dark:border-gray-700 hover:scale-110 transition-transform cursor-pointer shadow-2xs"
+                      style={{ backgroundColor: c.color === "inherit" ? (isDark ? "#374151" : "#F3F4F6") : c.color }}
+                      title={c.name}
+                    >
+                      {c.color === "inherit" && <span className="text-[9px] font-bold text-gray-400">✕</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Highlighter Pen Dropdown */}
+            <div className="relative">
+              <ToolbarButton
+                onClick={() => {
+                  setShowHighlightMenu(!showHighlightMenu);
+                  setShowColorMenu(false);
+                }}
+                isActive={editor.isActive("highlight") || showHighlightMenu}
+                title="Highlight Marker"
+                isDark={isDark}
+              >
+                <HighlighterIcon size={14} />
+              </ToolbarButton>
+
+              {showHighlightMenu && (
+                <div
+                  className={`absolute left-0 mt-1.5 p-2 rounded-xl shadow-2xl border z-50 text-xs animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-1.5 w-36 ${
+                    isDark
+                      ? "bg-gray-900 border-gray-700"
+                      : "bg-white border-gray-200"
+                  }`}
+                >
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {HIGHLIGHT_COLORS.map((h) => (
+                      <button
+                        key={h.name}
+                        type="button"
+                        onClick={() => {
+                          editor.chain().focus().toggleHighlight({ color: h.color }).run();
+                          setShowHighlightMenu(false);
+                        }}
+                        className="w-8 h-6 rounded-md border hover:scale-105 transition-transform cursor-pointer shadow-2xs"
+                        style={{ backgroundColor: h.color, borderColor: h.border }}
+                        title={h.name}
+                      />
+                    ))}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      editor.chain().focus().unsetHighlight().run();
+                      setShowHighlightMenu(false);
+                    }}
+                    className="w-full py-1 text-[10px] font-semibold text-center rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 hover:text-red-500 transition-colors cursor-pointer border border-dashed border-gray-200 dark:border-gray-700"
+                  >
+                    Clear Highlight
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Group 3: Headings */}
@@ -479,8 +630,48 @@ export default function Toolbar({
           </div>
         </div>
 
-        {/* Right side actions: Polls, History, Chat, Export, Zen Mode, Dark Mode */}
+        {/* Right side actions: Find, View Mode, Polls, History, Chat, Export, Zen, Dark */}
         <div className="flex items-center gap-2">
+          {/* Find & Replace & View Mode Pill */}
+          <div className={pillContainerClass}>
+            {/* Find & Replace */}
+            {onOpenFindReplace && (
+              <button
+                type="button"
+                onClick={onOpenFindReplace}
+                className="flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-semibold transition-all cursor-pointer active:scale-95 text-blue-600 dark:text-blue-400 hover:bg-white dark:hover:bg-gray-700"
+                title="Find & Replace (Cmd+F / Ctrl+F)"
+              >
+                <Search size={13} />
+                <span className="hidden xl:inline">Find</span>
+                <kbd className="hidden 2xl:inline-block px-1 py-0.2 text-[8px] font-semibold bg-gray-200 dark:bg-gray-700 rounded text-gray-600 dark:text-gray-300">
+                  ⌘F
+                </kbd>
+              </button>
+            )}
+
+            {/* Pageless vs Paginated Toggle */}
+            {onTogglePaginated && (
+              <button
+                type="button"
+                onClick={onTogglePaginated}
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-semibold transition-all cursor-pointer active:scale-95 ${
+                  isPaginated
+                    ? isDark
+                      ? "bg-gray-700 text-purple-300 shadow-xs"
+                      : "bg-white text-purple-700 shadow-xs"
+                    : isDark
+                      ? "text-gray-400 hover:text-gray-100 hover:bg-gray-700/60"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-white"
+                }`}
+                title={isPaginated ? "Switch to Pageless continuous view" : "Switch to A4 Paginated sheets"}
+              >
+                {isPaginated ? <FileText size={13} /> : <Layers size={13} />}
+                <span className="hidden xl:inline">{isPaginated ? "Pages" : "Pageless"}</span>
+              </button>
+            )}
+          </div>
+
           {/* Action Pills */}
           <div className={pillContainerClass}>
             {/* Collaborative Polls */}

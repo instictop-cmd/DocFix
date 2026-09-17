@@ -6,6 +6,9 @@ import StarterKit from "@tiptap/starter-kit";
 import Collaboration from "@tiptap/extension-collaboration";
 import { CollaborationCaret } from "@tiptap/extension-collaboration-caret";
 import Underline from "@tiptap/extension-underline";
+import { TextStyle } from "@tiptap/extension-text-style";
+import { Color } from "@tiptap/extension-color";
+import { Highlight } from "@tiptap/extension-highlight";
 import TipTapImage from "@tiptap/extension-image";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
@@ -25,6 +28,7 @@ import VersionHistoryModal from "../history/VersionHistoryModal";
 import DocPilotModal from "../ai/DocPilotModal";
 import PollModal from "../polls/PollModal";
 import SaveToast from "../ui/SaveToast";
+import FindReplaceBar from "./FindReplaceBar";
 import { createSnapshot } from "../../lib/snapshotUtils";
 import {
   Save,
@@ -166,6 +170,8 @@ function EditorSurface({
   const [isZenMode, setIsZenMode] = useState(false);
   const [followingUser, setFollowingUser] = useState<string | null>(null);
   const [networkCondition, setNetworkCondition] = useState<"normal" | "lag" | "offline">("normal");
+  const [isPaginated, setIsPaginated] = useState(false);
+  const [isFindReplaceOpen, setIsFindReplaceOpen] = useState(false);
   
   // Modals & Drawers
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -188,11 +194,15 @@ function EditorSurface({
 
   const yMeta = useRef(ydoc.getMap("meta")).current;
 
-  // Initialize theme
+  // Initialize theme & viewMode
   useEffect(() => {
     const savedTheme = localStorage.getItem("docfix-theme");
     if (savedTheme === "dark") {
       setIsDark(true);
+    }
+    const savedViewMode = localStorage.getItem("docfix-viewmode");
+    if (savedViewMode === "paginated") {
+      setIsPaginated(true);
     }
   }, []);
 
@@ -200,6 +210,12 @@ function EditorSurface({
     const next = !isDark;
     setIsDark(next);
     localStorage.setItem("docfix-theme", next ? "dark" : "light");
+  };
+
+  const toggleViewMode = () => {
+    const next = !isPaginated;
+    setIsPaginated(next);
+    localStorage.setItem("docfix-viewmode", next ? "paginated" : "pageless");
   };
 
   // Sync title
@@ -258,7 +274,7 @@ function EditorSurface({
     };
   }, [wsProvider]);
 
-  // TipTap v3 Editor initialization with Table & TaskList extensions
+  // TipTap v3 Editor initialization with Table, TaskList, Color, and Highlight extensions
   const editor = useEditor({
     editable: !isReadOnly,
     extensions: [
@@ -266,6 +282,11 @@ function EditorSurface({
         undoRedo: false, // Collaborative history handled by Yjs
       }),
       Underline,
+      TextStyle,
+      Color,
+      Highlight.configure({
+        multicolor: true,
+      }),
       TipTapImage.configure({
         inline: true,
         allowBase64: true,
@@ -331,7 +352,7 @@ function EditorSurface({
     }, 10000);
   }, [editor, ydoc, userName, showSaveToast]);
 
-  // Shortcut for DocPilot (Cmd+J / Ctrl+J) and Manual Save (Cmd+S / Ctrl+S)
+  // Shortcut for DocPilot (Cmd+J / Ctrl+J), Manual Save (Cmd+S / Ctrl+S), and Find (Cmd+F / Ctrl+F)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "j") {
@@ -341,6 +362,10 @@ function EditorSurface({
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
         e.preventDefault(); // Prevent browser "Save Page" dialog
         handleManualSave();
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "f") {
+        e.preventDefault(); // Prevent browser default find bar
+        setIsFindReplaceOpen((prev) => !prev);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -604,6 +629,17 @@ function EditorSurface({
         isChatOpen={isChatOpen}
         onOpenDocPilot={() => setIsDocPilotOpen(true)}
         onOpenPolls={() => setIsPollModalOpen(true)}
+        isPaginated={isPaginated}
+        onTogglePaginated={toggleViewMode}
+        onOpenFindReplace={() => setIsFindReplaceOpen(true)}
+      />
+
+      {/* Floating Find & Replace Bar */}
+      <FindReplaceBar
+        isOpen={isFindReplaceOpen}
+        onClose={() => setIsFindReplaceOpen(false)}
+        editor={editor}
+        isDark={isDark}
       />
 
       {/* Main Canvas Area */}
@@ -616,10 +652,18 @@ function EditorSurface({
         }}
       >
         <div
-          className={`max-w-4xl mx-auto my-8 rounded-2xl border transition-all min-h-[750px] ${
-            isDark
-              ? "bg-gray-900 border-gray-800/80 text-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
-              : "bg-white border-gray-200/70 text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.02),0_6px_16px_rgba(0,0,0,0.04),0_16px_36px_rgba(0,0,0,0.06)]"
+          className={`transition-all ${
+            isPaginated
+              ? `paper-paginated mx-auto my-8 border ${
+                  isDark
+                    ? "bg-gray-900 border-gray-800 text-gray-100 shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+                    : "bg-white border-gray-300/80 text-gray-900 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
+                }`
+              : `max-w-4xl mx-auto my-8 rounded-2xl border ${
+                  isDark
+                    ? "bg-gray-900 border-gray-800/80 text-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
+                    : "bg-white border-gray-200/70 text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.02),0_6px_16px_rgba(0,0,0,0.04),0_16px_36px_rgba(0,0,0,0.06)]"
+                }`
           }`}
           onClick={(e) => {
             e.stopPropagation();
@@ -628,6 +672,18 @@ function EditorSurface({
             }
           }}
         >
+          {/* Paginated Header Indicator */}
+          {isPaginated && (
+            <div
+              className={`px-16 pt-6 pb-2 text-[10px] uppercase font-semibold tracking-wider flex justify-between border-b select-none ${
+                isDark ? "text-gray-500 border-gray-800" : "text-gray-400 border-gray-100"
+              }`}
+            >
+              <span>DocFix Document · {title}</span>
+              <span>A4 Page 1</span>
+            </div>
+          )}
+
           <EditorContent editor={editor} />
         </div>
       </div>
