@@ -4,13 +4,13 @@
 import { useParams, useSearchParams } from "next/navigation";
 import { useState, useEffect } from "react";
 import CollaborativeEditor from "@/components/editor/Editor";
-import { User, Shield, Sparkles, ArrowRight, Lock } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
-// Pre-defined demo profiles for instant hackathon testing
-const DEMO_PROFILES = [
+// Pre-defined profiles for hackathon judging & quick testing
+const PROFILES = [
   {
     name: "Alice",
-    role: "Lead Architect (Host)",
+    role: "Lead Architect",
     color: "#2563EB",
     type: "editor" as const,
     badge: "Editor",
@@ -31,150 +31,161 @@ const DEMO_PROFILES = [
   },
 ];
 
+interface UserProfile {
+  name: string;
+  role: string;
+  color: string;
+  type: "editor" | "viewer";
+}
+
 export default function DocumentPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const documentId = params.id as string;
   const urlRole = searchParams.get("role") === "viewer" ? "viewer" : "editor";
 
-  const [userName, setUserName] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<"editor" | "viewer">(urlRole);
-  const [nameInput, setNameInput] = useState("");
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [customNameInput, setCustomNameInput] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Restore saved username immediately on mount
+  // Check if user is already logged in
   useEffect(() => {
     try {
-      const savedName =
-        localStorage.getItem("docfix-username") ||
-        localStorage.getItem("synora-username");
-      const savedRole = localStorage.getItem("docfix-userrole") as
-        | "editor"
-        | "viewer"
-        | null;
-
-      if (savedName) {
-        setUserName(savedName);
+      const savedUserStr = localStorage.getItem("docfix-active-user");
+      if (savedUserStr) {
+        const parsed = JSON.parse(savedUserStr);
+        setCurrentUser({
+          ...parsed,
+          type: urlRole === "viewer" ? "viewer" : parsed.type || "editor",
+        });
       }
-      if (savedRole && !searchParams.get("role")) {
-        setUserRole(savedRole);
-      }
-    } catch {
-      // Ignore localStorage errors
+    } catch (e) {
+      console.error(e);
     } finally {
-      setIsCheckingAuth(false);
+      setIsLoading(false);
     }
-  }, [searchParams]);
+  }, [urlRole]);
 
-  const handleJoinWithProfile = (name: string, role: "editor" | "viewer") => {
-    localStorage.setItem("docfix-username", name);
-    localStorage.setItem("docfix-userrole", role);
-    setUserName(name);
-    setUserRole(role);
+  // Login handler
+  const handleSelectProfile = (profile: UserProfile) => {
+    setCurrentUser(profile);
+    localStorage.setItem("docfix-active-user", JSON.stringify(profile));
+    localStorage.setItem("docfix-username", profile.name);
+    localStorage.setItem("docfix-userrole", profile.type);
   };
 
-  // Fast loading state during initial localStorage check (prevents flash of join screen)
-  if (isCheckingAuth) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-        <div className="flex items-center gap-3 text-blue-400">
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center text-blue-400">
+        <div className="flex items-center gap-3">
           <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <span className="text-sm font-medium text-slate-300">Loading document...</span>
+          <span className="text-sm font-medium text-slate-300">
+            Opening document...
+          </span>
         </div>
       </div>
     );
   }
 
-  // Name / Profile Entry Screen (Only shown if user has never selected a name)
-  if (!userName) {
+  // If user is not logged in yet (e.g. opened shared link in fresh Incognito window)
+  if (!currentUser) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex items-center justify-center p-4">
-        <div className="bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl p-8 max-w-lg w-full border border-white/20">
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 flex flex-col items-center justify-center p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-8 max-w-lg w-full border border-slate-200 dark:border-slate-800">
           <div className="text-center mb-6">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-600 text-white text-2xl mb-3 shadow-lg shadow-blue-500/30">
+            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-blue-600 text-white text-2xl mb-3 shadow-lg shadow-blue-500/25">
               📄
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-              Join DocFix Workspace
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Join Document Session
             </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-              Select a demo profile or enter your custom name
+            <p className="text-slate-500 dark:text-slate-400 text-xs sm:text-sm mt-1">
+              Select your profile to collaborate on this document
             </p>
           </div>
 
-          {/* Quick Demo Profiles */}
-          <div className="mb-6">
-            <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2.5">
-              Instant Hackathon Demo Profiles
+          {/* Quick Profiles */}
+          <div className="space-y-2.5 mb-6">
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">
+              Select Who Is Working
             </label>
-            <div className="grid grid-cols-1 gap-2.5">
-              {DEMO_PROFILES.map((profile) => (
-                <button
-                  key={profile.name}
-                  type="button"
-                  onClick={() => handleJoinWithProfile(profile.name, profile.type)}
-                  className="flex items-center justify-between p-3 rounded-xl border border-gray-200 dark:border-gray-800 hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-950/30 transition-all text-left group cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-xs"
-                      style={{ backgroundColor: profile.color }}
-                    >
-                      {profile.name[0]}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-gray-900 dark:text-gray-100 text-sm">
-                        {profile.name}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {profile.role}
-                      </p>
-                    </div>
-                  </div>
-                  <span
-                    className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${
-                      profile.type === "viewer"
-                        ? "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300"
-                        : "bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300"
-                    }`}
+            {PROFILES.map((p) => (
+              <button
+                key={p.name}
+                type="button"
+                onClick={() =>
+                  handleSelectProfile({
+                    name: p.name,
+                    role: p.role,
+                    color: p.color,
+                    type: urlRole === "viewer" ? "viewer" : p.type,
+                  })
+                }
+                className="w-full flex items-center justify-between p-3 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-950/40 transition-all text-left group cursor-pointer"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-xs"
+                    style={{ backgroundColor: p.color }}
                   >
-                    {profile.badge}
-                  </span>
-                </button>
-              ))}
-            </div>
+                    {p.name[0]}
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-900 dark:text-slate-100 text-sm group-hover:text-blue-600 transition-colors">
+                      {p.name}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {p.role}
+                    </p>
+                  </div>
+                </div>
+                <span
+                  className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
+                    p.type === "viewer" || urlRole === "viewer"
+                      ? "bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300"
+                      : "bg-blue-100 text-blue-800 dark:bg-blue-950/70 dark:text-blue-300"
+                  }`}
+                >
+                  {urlRole === "viewer" ? "Viewer" : p.badge}
+                </span>
+              </button>
+            ))}
           </div>
 
-          <div className="relative flex py-2 items-center">
-            <div className="flex-grow border-t border-gray-200 dark:border-gray-800" />
-            <span className="flex-shrink mx-4 text-xs text-gray-400 font-medium">
-              Or Custom Name
+          <div className="relative flex py-2 items-center mb-4">
+            <div className="flex-grow border-t border-slate-200 dark:border-slate-800" />
+            <span className="flex-shrink mx-4 text-xs text-slate-400 font-medium">
+              or enter custom name
             </span>
-            <div className="flex-grow border-t border-gray-200 dark:border-gray-800" />
+            <div className="flex-grow border-t border-slate-200 dark:border-slate-800" />
           </div>
 
           {/* Custom Name Form */}
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              const name = nameInput.trim() || "Anonymous User";
-              handleJoinWithProfile(name, "editor");
+              const name = customNameInput.trim() || "Guest Editor";
+              handleSelectProfile({
+                name,
+                role: "Custom Editor",
+                color: "#7C3AED",
+                type: urlRole,
+              });
             }}
-            className="mt-3 space-y-3"
+            className="flex gap-2"
           >
             <input
               type="text"
-              value={nameInput}
-              onChange={(e) => setNameInput(e.target.value)}
-              placeholder="Enter custom username..."
-              className="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-900 dark:text-white"
+              value={customNameInput}
+              onChange={(e) => setCustomNameInput(e.target.value)}
+              placeholder="Your name..."
+              className="flex-1 px-4 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-slate-900 dark:text-white"
             />
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-colors cursor-pointer shadow-md shadow-blue-500/20"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-colors cursor-pointer"
             >
-              <span>Enter Workspace</span>
-              <ArrowRight size={16} />
+              Join
             </button>
           </form>
         </div>
@@ -182,11 +193,12 @@ export default function DocumentPage() {
     );
   }
 
+  // Once logged in, load the collaborative editor immediately
   return (
     <CollaborativeEditor
       documentId={documentId}
-      userName={userName}
-      userRole={userRole}
+      userName={currentUser.name}
+      userRole={currentUser.type}
     />
   );
 }

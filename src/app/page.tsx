@@ -6,17 +6,51 @@ import { v4 as uuidv4 } from "uuid";
 import {
   Plus,
   FileText,
-  ArrowRight,
   Trash2,
-  Users,
-  Wifi,
   Share2,
+  Lock,
+  ArrowRight,
+  LogOut,
+  User,
   ShieldCheck,
   Cpu,
-  Lock,
-  ExternalLink,
-  Copy,
+  Wifi,
+  Users,
+  Sparkles,
+  X,
 } from "lucide-react";
+
+// Pre-configured profiles for hackathon judging & quick testing
+const PROFILES = [
+  {
+    name: "Alice",
+    role: "Lead Architect",
+    color: "#2563EB",
+    type: "editor" as const,
+    badge: "Editor",
+  },
+  {
+    name: "Bob",
+    role: "Product Designer",
+    color: "#059669",
+    type: "editor" as const,
+    badge: "Editor",
+  },
+  {
+    name: "Charlie",
+    role: "Security Auditor",
+    color: "#D97706",
+    type: "viewer" as const,
+    badge: "Viewer (Read-Only)",
+  },
+];
+
+interface UserProfile {
+  name: string;
+  role: string;
+  color: string;
+  type: "editor" | "viewer";
+}
 
 interface SavedDocument {
   id: string;
@@ -25,62 +59,103 @@ interface SavedDocument {
   lastOpened: string;
 }
 
-export default function Dashboard() {
+export default function Home() {
   const router = useRouter();
+
+  // Authentication State
+  const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [customNameInput, setCustomNameInput] = useState("");
+
+  // Dashboard & Document State
   const [documents, setDocuments] = useState<SavedDocument[]>([]);
-  const [joinId, setJoinId] = useState("");
-  const [newDocTitle, setNewDocTitle] = useState("");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [newDocName, setNewDocName] = useState("");
+  const [joinUrlInput, setJoinUrlInput] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  // Load saved documents from localStorage
+  // 1. Check if user is logged in on mount
   useEffect(() => {
-    const saved = localStorage.getItem("synora-documents");
-    if (saved) {
-      try {
-        setDocuments(JSON.parse(saved));
-      } catch {
-        setDocuments([]);
+    try {
+      const savedUserStr = localStorage.getItem("docfix-active-user");
+      if (savedUserStr) {
+        setCurrentUser(JSON.parse(savedUserStr));
       }
+
+      const savedDocsStr = localStorage.getItem("synora-documents");
+      if (savedDocsStr) {
+        setDocuments(JSON.parse(savedDocsStr));
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsAuthLoading(false);
     }
   }, []);
 
-  const saveDocuments = (docs: SavedDocument[]) => {
+  // Save documents to state and localStorage
+  const saveDocs = (docs: SavedDocument[]) => {
     setDocuments(docs);
     localStorage.setItem("synora-documents", JSON.stringify(docs));
   };
 
-  const createNewDocument = () => {
+  // Login handler
+  const handleLogin = (profile: UserProfile) => {
+    setCurrentUser(profile);
+    localStorage.setItem("docfix-active-user", JSON.stringify(profile));
+    localStorage.setItem("docfix-username", profile.name);
+    localStorage.setItem("docfix-userrole", profile.type);
+  };
+
+  // Logout / Switch User handler
+  const handleLogout = () => {
+    setCurrentUser(null);
+    localStorage.removeItem("docfix-active-user");
+    localStorage.removeItem("docfix-username");
+    localStorage.removeItem("docfix-userrole");
+  };
+
+  // Create named document
+  const handleCreateDocument = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const title = newDocName.trim() || "Untitled Document";
     const id = uuidv4();
-    const docTitle = newDocTitle.trim() || "Untitled Document";
+
     const newDoc: SavedDocument = {
       id,
-      title: docTitle,
+      title,
       createdAt: new Date().toISOString(),
       lastOpened: new Date().toISOString(),
     };
-    saveDocuments([newDoc, ...documents]);
-    setNewDocTitle("");
+
+    saveDocs([newDoc, ...documents]);
+    setIsCreateModalOpen(false);
+    setNewDocName("");
     router.push(`/document/${id}`);
   };
 
-  const openDocument = (id: string) => {
+  // Open existing document
+  const handleOpenDocument = (id: string) => {
     const updated = documents.map((doc) =>
       doc.id === id ? { ...doc, lastOpened: new Date().toISOString() } : doc
     );
-    saveDocuments(updated);
+    saveDocs(updated);
     router.push(`/document/${id}`);
   };
 
-  const deleteDocument = (id: string) => {
-    saveDocuments(documents.filter((doc) => doc.id !== id));
+  // Delete document
+  const handleDeleteDocument = (id: string) => {
+    saveDocs(documents.filter((d) => d.id !== id));
   };
 
-  const joinDocument = () => {
-    const id = joinId.trim();
-    if (!id) return;
+  // Join by URL or ID
+  const handleJoinDocument = (e: React.FormEvent) => {
+    e.preventDefault();
+    const input = joinUrlInput.trim();
+    if (!input) return;
 
-    const match = id.match(/\/document\/([^?]+)/);
-    const docId = match ? match[1] : id;
+    const match = input.match(/\/document\/([^?]+)/);
+    const docId = match ? match[1] : input;
 
     if (!documents.find((d) => d.id === docId)) {
       const newDoc: SavedDocument = {
@@ -89,13 +164,14 @@ export default function Dashboard() {
         createdAt: new Date().toISOString(),
         lastOpened: new Date().toISOString(),
       };
-      saveDocuments([newDoc, ...documents]);
+      saveDocs([newDoc, ...documents]);
     }
 
     router.push(`/document/${docId}`);
   };
 
-  const copyShareLink = (id: string, role: "editor" | "viewer" = "editor") => {
+  // Copy share link
+  const handleCopyLink = (id: string, role: "editor" | "viewer" = "editor") => {
     const url = `${window.location.origin}/document/${id}${role === "viewer" ? "?role=viewer" : ""}`;
     navigator.clipboard.writeText(url);
     setCopiedId(`${id}-${role}`);
@@ -105,131 +181,248 @@ export default function Dashboard() {
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
+    const diffMins = Math.floor((now.getTime() - date.getTime()) / 60000);
     if (diffMins < 1) return "Just now";
     if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
     return date.toLocaleDateString();
   };
 
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center text-blue-400">
+        <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // SCREEN 1: LOGIN / SELECT WHO IS WORKING
+  // =========================================================================
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 flex flex-col items-center justify-center p-4">
+        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-8 sm:p-10 max-w-lg w-full border border-slate-200 dark:border-slate-800">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600 text-white text-3xl mb-4 shadow-xl shadow-blue-500/25">
+              📄
+            </div>
+            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+              Welcome to DocFix
+            </h1>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1.5">
+              Select who is working to start your collaborative session
+            </p>
+          </div>
+
+          {/* Quick User Profiles */}
+          <div className="space-y-3 mb-6">
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">
+              Select Working Profile
+            </label>
+            {PROFILES.map((p) => (
+              <button
+                key={p.name}
+                type="button"
+                onClick={() =>
+                  handleLogin({
+                    name: p.name,
+                    role: p.role,
+                    color: p.color,
+                    type: p.type,
+                  })
+                }
+                className="w-full flex items-center justify-between p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-950/40 transition-all text-left group cursor-pointer shadow-xs"
+              >
+                <div className="flex items-center gap-3.5">
+                  <div
+                    className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-base shadow-sm"
+                    style={{ backgroundColor: p.color }}
+                  >
+                    {p.name[0]}
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-900 dark:text-slate-100 text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                      {p.name}
+                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {p.role}
+                    </p>
+                  </div>
+                </div>
+                <span
+                  className={`text-xs font-semibold px-3 py-1 rounded-full ${
+                    p.type === "viewer"
+                      ? "bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300"
+                      : "bg-blue-100 text-blue-800 dark:bg-blue-950/70 dark:text-blue-300"
+                  }`}
+                >
+                  {p.badge}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <div className="relative flex py-2 items-center mb-4">
+            <div className="flex-grow border-t border-slate-200 dark:border-slate-800" />
+            <span className="flex-shrink mx-4 text-xs text-slate-400 font-medium">
+              or enter custom name
+            </span>
+            <div className="flex-grow border-t border-slate-200 dark:border-slate-800" />
+          </div>
+
+          {/* Custom Name Form */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              const name = customNameInput.trim() || "Guest User";
+              handleLogin({
+                name,
+                role: "Custom Editor",
+                color: "#7C3AED",
+                type: "editor",
+              });
+            }}
+            className="flex gap-2"
+          >
+            <input
+              type="text"
+              value={customNameInput}
+              onChange={(e) => setCustomNameInput(e.target.value)}
+              placeholder="Your name..."
+              className="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-slate-900 dark:text-white"
+            />
+            <button
+              type="submit"
+              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-colors cursor-pointer"
+            >
+              Continue
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // =========================================================================
+  // SCREEN 2: DASHBOARD (AFTER LOGGING IN)
+  // =========================================================================
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between">
-      {/* Header */}
       <div>
-        <header className="bg-white border-b border-slate-200 sticky top-0 z-10 shadow-xs">
+        {/* Top Navbar */}
+        <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-xs">
           <div className="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <span className="text-2xl">📄</span>
-              <h1 className="text-2xl font-extrabold text-blue-600 tracking-tight">DocFix</h1>
+              <h1 className="text-2xl font-extrabold text-blue-600 tracking-tight">
+                DocFix
+              </h1>
             </div>
-            <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>CRDT Sync Online</span>
+
+            {/* Current User Info & Switch Button */}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5 px-3 py-1.5 bg-slate-100 rounded-full border border-slate-200">
+                <div
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                  style={{ backgroundColor: currentUser.color }}
+                >
+                  {currentUser.name[0]}
+                </div>
+                <div className="text-xs font-semibold text-slate-800">
+                  {currentUser.name}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="text-xs text-slate-400 hover:text-red-600 ml-1 cursor-pointer flex items-center gap-1 font-medium"
+                  title="Switch user"
+                >
+                  <LogOut size={12} />
+                  <span>Switch</span>
+                </button>
+              </div>
             </div>
           </div>
         </header>
 
+        {/* Dashboard Content */}
         <main className="max-w-6xl mx-auto px-6 py-8">
-          {/* Hero section */}
+          {/* Hero Banner */}
           <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-slate-900 rounded-3xl p-8 sm:p-10 mb-8 text-white shadow-xl shadow-blue-500/10">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-blue-100 text-xs font-semibold mb-4 backdrop-blur-sm border border-white/10">
-              <ShieldCheck size={14} className="text-emerald-400" />
-              <span>Yjs YATA Conflict-Free Replicated Data Type</span>
+            <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-blue-100 text-xs font-semibold backdrop-blur-sm border border-white/10">
+                <ShieldCheck size={14} className="text-emerald-400" />
+                <span>CRDT Workspace Active · Logged in as {currentUser.name}</span>
+              </div>
             </div>
 
             <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
-              Real-Time Collaborative Document Engine
+              Create & Collaborate in Real Time
             </h2>
             <p className="text-blue-100 mb-8 max-w-2xl text-sm sm:text-base leading-relaxed">
-              Simultaneous multi-user editing with zero data loss or race conditions.
-              Features sub-millisecond CRDT merging, live presence carets, and dual-layer offline persistence.
+              Every document is powered by Yjs YATA CRDT. Multiple users can edit simultaneously
+              with sub-millisecond sync, live presence carets, and zero race conditions.
             </p>
 
-            {/* Document Creation Box */}
-            <div className="flex flex-col sm:flex-row gap-3 max-w-lg mb-8">
-              <input
-                type="text"
-                value={newDocTitle}
-                onChange={(e) => setNewDocTitle(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && createNewDocument()}
-                placeholder="Enter document title (optional)..."
-                className="flex-1 px-4 py-3 rounded-xl bg-white/10 border border-white/20 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white focus:bg-white/20 text-sm backdrop-blur-sm"
-              />
-              <button
-                type="button"
-                onClick={createNewDocument}
-                className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-blue-700 rounded-xl font-bold hover:bg-blue-50 transition-all shadow-md cursor-pointer whitespace-nowrap text-sm"
-              >
-                <Plus size={18} />
-                New Document
-              </button>
-            </div>
-
-            {/* Technical Pillars Badges */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs text-blue-100 border-t border-white/10 pt-6">
-              <div className="flex items-center gap-2">
-                <Users size={16} className="text-cyan-300" />
-                <span>Live Cursor Carets</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Wifi size={16} className="text-emerald-300" />
-                <span>Dual-Tier Offline Sync</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Cpu size={16} className="text-purple-300" />
-                <span>Zero Last-Write-Wins</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <ShieldCheck size={16} className="text-amber-300" />
-                <span>SHA-256 State Hash</span>
-              </div>
-            </div>
+            {/* "+ New Document" Trigger Button */}
+            <button
+              type="button"
+              onClick={() => setIsCreateModalOpen(true)}
+              className="flex items-center gap-2.5 px-6 py-3.5 bg-white text-blue-700 rounded-xl font-bold hover:bg-blue-50 transition-all shadow-lg shadow-black/10 cursor-pointer text-base hover:scale-102"
+            >
+              <Plus size={20} />
+              <span>New Document</span>
+            </button>
           </div>
 
-          {/* Join existing document bar */}
+          {/* Join by URL / ID Box */}
           <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-8 shadow-xs">
-            <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider mb-2.5">
-              Join Existing Workspace
+            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+              Join Shared Document
             </h3>
-            <div className="flex gap-3">
+            <form onSubmit={handleJoinDocument} className="flex gap-3">
               <input
                 type="text"
-                value={joinId}
-                onChange={(e) => setJoinId(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && joinDocument()}
+                value={joinUrlInput}
+                onChange={(e) => setJoinUrlInput(e.target.value)}
                 placeholder="Paste document ID or full URL link..."
-                className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-slate-900"
+                className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
               />
               <button
-                type="button"
-                onClick={joinDocument}
+                type="submit"
                 className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-colors cursor-pointer"
               >
                 <ArrowRight size={16} />
                 <span>Join</span>
               </button>
-            </div>
+            </form>
           </div>
 
-          {/* Document list */}
+          {/* Recent Documents Section */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-slate-900">Your Recent Documents</h3>
-              <span className="text-xs text-slate-500">{documents.length} stored locally</span>
+              <h3 className="text-lg font-bold text-slate-900">Your Documents</h3>
+              <span className="text-xs text-slate-500">
+                {documents.length} {documents.length === 1 ? "document" : "documents"}
+              </span>
             </div>
 
             {documents.length === 0 ? (
               <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center">
                 <FileText size={44} className="mx-auto text-slate-300 mb-3" />
-                <p className="text-slate-700 font-semibold mb-1">No documents created yet</p>
-                <p className="text-slate-400 text-xs">
-                  Click &quot;New Document&quot; above to create your first collaborative canvas.
+                <p className="text-slate-700 font-semibold mb-1">
+                  No documents created yet
                 </p>
+                <p className="text-slate-400 text-xs mb-4">
+                  Click &quot;New Document&quot; above to create and name your first document.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsCreateModalOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                >
+                  <Plus size={15} /> Create Document
+                </button>
               </div>
             ) : (
               <div className="grid gap-3">
@@ -240,10 +433,10 @@ export default function Dashboard() {
                   >
                     <button
                       type="button"
-                      onClick={() => openDocument(doc.id)}
+                      onClick={() => handleOpenDocument(doc.id)}
                       className="flex items-center gap-3.5 flex-1 text-left cursor-pointer"
                     >
-                      <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                      <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg group-hover:bg-blue-600 group-hover:text-white transition-colors shadow-xs">
                         📄
                       </div>
                       <div>
@@ -256,33 +449,19 @@ export default function Dashboard() {
                       </div>
                     </button>
 
-                    <div className="flex items-center gap-1.5 self-end sm:self-center">
-                      {/* Copy Editor Link */}
+                    <div className="flex items-center gap-2 self-end sm:self-center">
                       <button
                         type="button"
-                        onClick={() => copyShareLink(doc.id, "editor")}
+                        onClick={() => handleCopyLink(doc.id, "editor")}
                         className="text-xs px-2.5 py-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1 cursor-pointer font-medium"
-                        title="Copy Editor Share Link"
                       >
                         <Share2 size={13} />
                         <span>{copiedId === `${doc.id}-editor` ? "Copied!" : "Share Link"}</span>
                       </button>
 
-                      {/* Copy Viewer Link */}
                       <button
                         type="button"
-                        onClick={() => copyShareLink(doc.id, "viewer")}
-                        className="text-xs px-2.5 py-1.5 text-slate-600 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors flex items-center gap-1 cursor-pointer font-medium"
-                        title="Copy Read-Only Viewer Link"
-                      >
-                        <Lock size={12} />
-                        <span>{copiedId === `${doc.id}-viewer` ? "Copied!" : "Viewer Link"}</span>
-                      </button>
-
-                      {/* Delete */}
-                      <button
-                        type="button"
-                        onClick={() => deleteDocument(doc.id)}
+                        onClick={() => handleDeleteDocument(doc.id)}
                         className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                         title="Delete Document"
                       >
@@ -297,9 +476,63 @@ export default function Dashboard() {
         </main>
       </div>
 
+      {/* ===================================================================== */}
+      {/* MODAL: NAME YOUR NEW DOCUMENT */}
+      {/* ===================================================================== */}
+      {isCreateModalOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-7 max-w-md w-full border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-slate-900">
+                Create New Document
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsCreateModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateDocument} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                  Document Title
+                </label>
+                <input
+                  type="text"
+                  value={newDocName}
+                  onChange={(e) => setNewDocName(e.target.value)}
+                  placeholder="e.g. Sprint Planning Notes, Architecture Spec..."
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-slate-900 font-medium"
+                  autoFocus
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl text-sm font-semibold transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md shadow-blue-500/20 transition-all cursor-pointer"
+                >
+                  Create & Open
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Footer */}
       <footer className="max-w-6xl mx-auto px-6 py-6 text-center text-xs text-slate-400 border-t border-slate-200 w-full mt-10">
-        <p>DocFix Collaborative Engine · Built with Yjs (CRDT) · TipTap v3 · Next.js · WebSocket</p>
+        <p>DocFix Collaborative Engine · Built with Yjs (CRDT) · TipTap v3 · Next.js · WebSockets</p>
       </footer>
     </div>
   );

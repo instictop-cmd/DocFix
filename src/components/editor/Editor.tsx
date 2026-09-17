@@ -97,15 +97,36 @@ export default function CollaborativeEditor({
   // Sync document title with Yjs map and localStorage
   useEffect(() => {
     const updateTitleFromYjs = () => {
-      const remoteTitle = (yMeta.get("title") as string) || "Untitled Document";
-      setTitle(remoteTitle);
+      let remoteTitle = (yMeta.get("title") as string) || "";
+      
+      // If Yjs doesn't have a title yet, check if we created one on the Dashboard
+      if (!remoteTitle) {
+        try {
+          const saved = localStorage.getItem("synora-documents");
+          if (saved) {
+            const docs = JSON.parse(saved);
+            const found = docs.find((d: { id: string; title: string }) => d.id === documentId);
+            if (found && found.title) {
+              remoteTitle = found.title;
+              if (!isReadOnly) {
+                yMeta.set("title", remoteTitle);
+              }
+            }
+          }
+        } catch {
+          // Ignore
+        }
+      }
+
+      const finalTitle = remoteTitle || "Untitled Document";
+      setTitle(finalTitle);
 
       try {
         const saved = localStorage.getItem("synora-documents");
         if (saved) {
           const docs = JSON.parse(saved);
           const updated = docs.map((d: { id: string; title: string }) =>
-            d.id === documentId ? { ...d, title: remoteTitle } : d
+            d.id === documentId ? { ...d, title: finalTitle } : d
           );
           localStorage.setItem("synora-documents", JSON.stringify(updated));
         }
@@ -120,7 +141,7 @@ export default function CollaborativeEditor({
     return () => {
       yMeta.unobserve(updateTitleFromYjs);
     };
-  }, [yMeta, documentId]);
+  }, [yMeta, documentId, isReadOnly]);
 
   const handleTitleChange = (newTitle: string) => {
     if (isReadOnly) return;
@@ -375,7 +396,9 @@ export default function CollaborativeEditor({
           <button
             type="button"
             onClick={() => {
+              localStorage.removeItem("docfix-active-user");
               localStorage.removeItem("docfix-username");
+              localStorage.removeItem("docfix-userrole");
               window.location.reload();
             }}
             className="hover:underline text-blue-500 cursor-pointer"
