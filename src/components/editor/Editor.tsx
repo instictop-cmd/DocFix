@@ -464,18 +464,6 @@ function EditorSurface({
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* DocPilot AI Quick Trigger */}
-            {!isReadOnly && (
-              <button
-                type="button"
-                onClick={() => setIsDocPilotOpen(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:to-pink-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
-                title="DocPilot AI (Ctrl+J)"
-              >
-                <Sparkles size={13} className="animate-pulse" />
-                <span className="hidden md:inline">DocPilot</span>
-              </button>
-            )}
 
             {/* Share / Invite Button */}
             <button
