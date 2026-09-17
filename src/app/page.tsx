@@ -34,15 +34,19 @@ export default function Dashboard() {
     localStorage.setItem("synora-documents", JSON.stringify(docs));
   };
 
+  const [newDocTitle, setNewDocTitle] = useState("");
+
   const createNewDocument = () => {
     const id = uuidv4();
+    const docTitle = newDocTitle.trim() || "Untitled Document";
     const newDoc: SavedDocument = {
       id,
-      title: `Untitled Document`,
+      title: docTitle,
       createdAt: new Date().toISOString(),
       lastOpened: new Date().toISOString(),
     };
     saveDocuments([newDoc, ...documents]);
+    setNewDocTitle("");
     router.push(`/document/${id}`);
   };
 
@@ -118,11 +122,19 @@ export default function Dashboard() {
             instantly using CRDT technology — no conflicts, no data loss.
           </p>
 
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 max-w-md">
+            <input
+              type="text"
+              value={newDocTitle}
+              onChange={(e) => setNewDocTitle(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && createNewDocument()}
+              placeholder="Enter document title (optional)..."
+              className="flex-1 px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-blue-200 focus:outline-none focus:ring-2 focus:ring-white focus:bg-white/20 text-sm sm:text-base backdrop-blur-sm"
+            />
             <button
               type="button"
               onClick={createNewDocument}
-              className="flex items-center gap-2 px-6 py-3 bg-white text-blue-700 rounded-lg font-semibold hover:bg-blue-50 transition-colors shadow-sm"
+              className="flex items-center justify-center gap-2 px-6 py-3 bg-white text-blue-700 rounded-lg font-semibold hover:bg-blue-50 transition-colors shadow-sm cursor-pointer whitespace-nowrap text-sm sm:text-base"
             >
               <Plus size={20} />
               New Document

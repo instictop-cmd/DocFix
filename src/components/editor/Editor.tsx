@@ -42,11 +42,13 @@ export default function CollaborativeEditor({
     "connecting" | "connected" | "disconnected"
   >("connecting");
   const [synced, setSynced] = useState(false);
+  const [title, setTitle] = useState("Untitled Document");
 
   // Create Yjs document and providers — stable across re-renders
-  const { ydoc, wsProvider, userColor } = useMemo(() => {
+  const { ydoc, wsProvider, userColor, yMeta } = useMemo(() => {
     const doc = new Y.Doc();
     const color = getRandomColor();
+    const meta = doc.getMap("meta");
 
     // WebSocket provider — connects to our collaboration server
     const provider = new WebsocketProvider(
@@ -58,9 +60,43 @@ export default function CollaborativeEditor({
     // IndexedDB persistence — saves document locally for offline support
     new IndexeddbPersistence(documentId, doc);
 
-    return { ydoc: doc, wsProvider: provider, userColor: color };
+    return { ydoc: doc, wsProvider: provider, userColor: color, yMeta: meta };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [documentId]);
+
+  // Sync document title with Yjs map and localStorage
+  useEffect(() => {
+    const updateTitleFromYjs = () => {
+      const remoteTitle = (yMeta.get("title") as string) || "Untitled Document";
+      setTitle(remoteTitle);
+
+      // Update in localStorage document list
+      try {
+        const saved = localStorage.getItem("synora-documents");
+        if (saved) {
+          const docs = JSON.parse(saved);
+          const updated = docs.map((d: { id: string; title: string }) =>
+            d.id === documentId ? { ...d, title: remoteTitle } : d
+          );
+          localStorage.setItem("synora-documents", JSON.stringify(updated));
+        }
+      } catch (e) {
+        console.error("Failed to update title in localStorage", e);
+      }
+    };
+
+    yMeta.observe(updateTitleFromYjs);
+    updateTitleFromYjs();
+
+    return () => {
+      yMeta.unobserve(updateTitleFromYjs);
+    };
+  }, [yMeta, documentId]);
+
+  const handleTitleChange = (newTitle: string) => {
+    setTitle(newTitle);
+    yMeta.set("title", newTitle);
+  };
 
   // Track connection status
   useEffect(() => {
@@ -138,8 +174,28 @@ export default function CollaborativeEditor({
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200 bg-white">
         <div className="flex items-center gap-3">
-          <h1 className="text-xl font-semibold text-gray-800">📝 Synora</h1>
-          <div className="flex items-center gap-1.5">
+          <a
+            href="/"
+            className="text-xl font-bold text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-1.5"
+            title="Back to Dashboard"
+          >
+            <span>📝</span>
+            <span className="hidden sm:inline">Synora</span>
+          </a>
+
+          <div className="h-5 w-px bg-gray-300 mx-1 hidden sm:block" />
+
+          {/* Editable Document Title (like Google Docs) */}
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => handleTitleChange(e.target.value)}
+            placeholder="Untitled Document"
+            className="text-base font-semibold text-gray-800 bg-transparent hover:bg-gray-100 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-400 px-2 py-1 rounded transition-colors max-w-[200px] sm:max-w-xs md:max-w-md"
+            title="Click to rename document"
+          />
+
+          <div className="flex items-center gap-1.5 ml-2">
             <div
               className={`w-2 h-2 rounded-full ${
                 status === "connected"
@@ -149,7 +205,7 @@ export default function CollaborativeEditor({
                     : "bg-red-500"
               }`}
             />
-            <span className="text-xs text-gray-500 capitalize">
+            <span className="text-xs text-gray-500 capitalize hidden md:inline">
               {status}
               {status === "connected" && synced ? " · Synced" : ""}
             </span>
