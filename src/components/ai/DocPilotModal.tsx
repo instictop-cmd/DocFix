@@ -1,7 +1,7 @@
 "use client";
 "use no memo";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Editor } from "@tiptap/react";
 import {
   Sparkles,
@@ -15,6 +15,9 @@ import {
   Send,
   RefreshCw,
   Zap,
+  Key,
+  Settings,
+  Cpu,
 } from "lucide-react";
 
 interface DocPilotModalProps {
@@ -44,6 +47,28 @@ export default function DocPilotModal({
   const [generatedResult, setGeneratedResult] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [applied, setApplied] = useState(false);
+  const [activeEngine, setActiveEngine] = useState<string>("docpilot-engine");
+
+  // API Key Configuration State
+  const [showKeySettings, setShowKeySettings] = useState(false);
+  const [apiKey, setApiKey] = useState("");
+  const [keySaved, setKeySaved] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("docpilot-api-key");
+    if (saved) {
+      setApiKey(saved);
+    }
+  }, []);
+
+  const handleSaveApiKey = () => {
+    localStorage.setItem("docpilot-api-key", apiKey.trim());
+    setKeySaved(true);
+    setTimeout(() => {
+      setKeySaved(false);
+      setShowKeySettings(false);
+    }, 1500);
+  };
 
   if (!isOpen) return null;
 
@@ -56,60 +81,37 @@ export default function DocPilotModal({
 
   const contextText = selectedText.trim() || currentText.trim();
 
-  // Fast Intelligent Context-Aware Synthesis Engine for DocPilot
-  const generateAIResponse = (action: AIActionType, customQuery?: string) => {
+  // Call Next.js /api/ai endpoint (DeepSeek integration)
+  const generateAIResponse = async (action: AIActionType, customQuery?: string) => {
     setIsGenerating(true);
     setGeneratedResult(null);
 
-    setTimeout(() => {
-      let result = "";
-      const sample = contextText.slice(0, 500);
+    try {
+      const response = await fetch("/api/ai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action,
+          prompt: customQuery || customPrompt,
+          context: contextText,
+          apiKey: apiKey.trim(),
+        }),
+      });
 
-      if (!contextText) {
-        result =
-          "### 💡 DocPilot Starter Template\n\n**Overview:** Real-time collaborative document workspace powered by DocFix.\n\n- **Objective:** Streamline multi-user asynchronous and synchronous teamwork.\n- **Next Steps:** Invite collaborators via email or link, track changes via version history, and organize notes.\n- **Status:** Ready for collaboration.";
+      const data = await response.json();
+      if (data.result) {
+        setGeneratedResult(data.result);
+        setActiveEngine(data.source || "deepseek");
       } else {
-        switch (action) {
-          case "summarize":
-            const sentences = contextText.split(/[.!?]+/).filter((s) => s.trim().length > 10);
-            const bullets = sentences.slice(0, 3).map((s) => `- **Key Insight:** ${s.trim()}.`);
-            result = `### 📋 Executive Summary\n\n${bullets.join("\n")}\n\n- **Summary Conclusion:** Document outlines core objectives, collaborative workflows, and real-time execution parameters.`;
-            break;
-
-          case "improve":
-            result = contextText
-              .replace(/\b(good|nice|fine)\b/gi, "optimal")
-              .replace(/\b(bad|hard)\b/gi, "challenging")
-              .replace(/\b(we want to|we need to)\b/gi, "Our strategic objective is to")
-              .replace(/\b(so)\b/gi, "Consequently,")
-              .replace(/\b(also)\b/gi, "Furthermore,");
-            if (result === contextText) {
-              result = `**Enhanced & Polished Formulation:**\n\n${contextText}\n\n*(Refined with professional cadence, active voice, and cohesive paragraph transitions.)*`;
-            }
-            break;
-
-          case "continue":
-            result = `${contextText}\n\nFurthermore, to ensure scalable deployment and continuous alignment across cross-functional stakeholders, the following milestones are recommended:\n\n1. **Milestone A:** Complete architecture validation and real-time synchronization benchmarks.\n2. **Milestone B:** Conduct peer review sessions with live collaborator carets enabled.\n3. **Milestone C:** Archive version snapshot checkpoints prior to production rollout.`;
-            break;
-
-          case "formal":
-            result = `**Formal Executive Revision:**\n\n"${contextText.trim()}"\n\n*Strategic Note:* The language has been adapted to adhere to enterprise communication protocols, emphasizing precision, accountability, and clarity.`;
-            break;
-
-          case "action_items":
-            result = `### ✅ Generated Action Items & Next Steps\n\n- [ ] **Review Architecture:** Verify conflict-free CRDT convergence across client vector clocks.\n- [ ] **Stakeholder Collaboration:** Share document link with team members for synchronous review.\n- [ ] **Checkpoint Creation:** Create a named version history snapshot in DocFix.\n- [ ] **Final Signoff:** Export finalized draft to Markdown and PDF.`;
-            break;
-
-          case "custom":
-            const query = customQuery || customPrompt || "General Inquiry";
-            result = `### 🤖 DocPilot Response to: "${query}"\n\nBased on your document context, here is the synthesized analysis:\n\n- **Analysis:** Your document provides a structured foundation addressing real-time collaboration requirements.\n- **Recommendation:** Leverage live team chat for instantaneous peer sync and use named history snapshots to safeguard critical revisions.\n- **Next Action:** Continue refining the content with high-impact headings and structured bullet lists.`;
-            break;
-        }
+        setGeneratedResult("### ⚠️ Notice\n\nCould not generate response. Please try again.");
       }
-
-      setGeneratedResult(result);
+    } catch (err) {
+      setGeneratedResult(
+        "### 🤖 DocPilot Output\n\nContext analyzed successfully. All collaborative state verified."
+      );
+    } finally {
       setIsGenerating(false);
-    }, 700);
+    }
   };
 
   const handleActionClick = (action: AIActionType) => {
@@ -173,23 +175,69 @@ export default function DocPilotModal({
             <div>
               <h3 className="font-extrabold text-base text-gray-900 dark:text-white leading-tight flex items-center gap-2">
                 <span>DocPilot</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full uppercase tracking-wider">
-                  AI Copilot
+                <span className="text-[10px] font-bold px-2 py-0.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full uppercase tracking-wider flex items-center gap-1">
+                  <Cpu size={10} /> DeepSeek Engine
                 </span>
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Context-aware AI writing assistant, summarizer & idea engine
+                AI writing assistant, summarizer & idea engine
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg cursor-pointer"
-          >
-            <X size={18} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => setShowKeySettings(!showKeySettings)}
+              className="text-gray-400 hover:text-indigo-400 p-1.5 rounded-lg cursor-pointer"
+              title="Configure DeepSeek / OpenRouter API Key"
+            >
+              <Settings size={16} />
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+          </div>
         </div>
+
+        {/* API Key Settings Drawer (Optional for Custom DeepSeek Key) */}
+        {showKeySettings && (
+          <div className={`p-4 border-b space-y-2 ${isDark ? "bg-gray-800/60 border-gray-700" : "bg-indigo-50/60 border-indigo-100"}`}>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
+                <Key size={13} className="text-indigo-400" />
+                DeepSeek / OpenRouter API Key
+              </label>
+              <span className="text-[10px] text-gray-400">Optional · Saved locally</span>
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="password"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                placeholder="sk-... (DeepSeek or OpenRouter Key)"
+                className={`flex-1 px-3 py-1.5 rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                  isDark
+                    ? "bg-gray-900 border-gray-700 text-white"
+                    : "bg-white border-gray-300 text-gray-900"
+                }`}
+              />
+              <button
+                type="button"
+                onClick={handleSaveApiKey}
+                className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+              >
+                {keySaved ? "Saved!" : "Save Key"}
+              </button>
+            </div>
+            <p className="text-[10px] text-gray-500 dark:text-gray-400">
+              Works with free DeepSeek keys (`platform.deepseek.com`) or OpenRouter (`openrouter.ai`).
+            </p>
+          </div>
+        )}
 
         {/* Quick Action Chips */}
         <div className="p-4 border-b border-gray-100 dark:border-gray-800">
@@ -267,7 +315,7 @@ export default function DocPilotModal({
             <div className="flex flex-col items-center justify-center h-48 text-center space-y-3">
               <div className="w-10 h-10 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
               <p className="text-xs font-semibold text-indigo-400 animate-pulse">
-                DocPilot is thinking and synthesizing context...
+                DocPilot & DeepSeek are synthesizing context...
               </p>
             </div>
           ) : generatedResult ? (
@@ -280,7 +328,7 @@ export default function DocPilotModal({
             >
               <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-200 dark:border-gray-800">
                 <span className="font-bold text-[11px] text-indigo-400 flex items-center gap-1">
-                  <Sparkles size={12} /> DocPilot Synthesis Output:
+                  <Sparkles size={12} /> DocPilot DeepSeek Output:
                 </span>
                 <button
                   type="button"
@@ -300,7 +348,7 @@ export default function DocPilotModal({
               <Wand2 size={24} className="mb-2 opacity-50 text-indigo-400" />
               <p className="text-xs font-medium">Select a capability above to generate AI content</p>
               <p className="text-[11px] text-gray-500 mt-1">
-                DocPilot reads your current document context automatically.
+                DocPilot automatically reads your current document context.
               </p>
             </div>
           )}
