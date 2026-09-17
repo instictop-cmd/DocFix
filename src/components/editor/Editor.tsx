@@ -29,6 +29,8 @@ import DocPilotModal from "../ai/DocPilotModal";
 import PollModal from "../polls/PollModal";
 import SaveToast from "../ui/SaveToast";
 import FindReplaceBar from "./FindReplaceBar";
+import ShortcutsModal from "../ui/ShortcutsModal";
+import ShortcutsPill from "../ui/ShortcutsPill";
 import { createSnapshot } from "../../lib/snapshotUtils";
 import {
   Save,
@@ -172,6 +174,7 @@ function EditorSurface({
   const [networkCondition, setNetworkCondition] = useState<"normal" | "lag" | "offline">("normal");
   const [isPaginated, setIsPaginated] = useState(false);
   const [isFindReplaceOpen, setIsFindReplaceOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   
   // Modals & Drawers
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -366,6 +369,10 @@ function EditorSurface({
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "f") {
         e.preventDefault(); // Prevent browser default find bar
         setIsFindReplaceOpen((prev) => !prev);
+      }
+      if ((e.metaKey || e.ctrlKey) && e.key === "/") {
+        e.preventDefault();
+        setIsShortcutsOpen((prev) => !prev);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -785,6 +792,21 @@ function EditorSurface({
         ydoc={ydoc}
         editor={editor}
         currentUserName={userName}
+        isDark={isDark}
+      />
+
+      {/* Floating Hideable Keyboard Shortcuts Pill (Bottom Right) */}
+      {!isZenMode && (
+        <ShortcutsPill
+          onOpen={() => setIsShortcutsOpen(true)}
+          isDark={isDark}
+        />
+      )}
+
+      {/* Keyboard Shortcuts Manual Modal */}
+      <ShortcutsModal
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
         isDark={isDark}
       />
     </div>
