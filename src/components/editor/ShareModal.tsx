@@ -60,33 +60,19 @@ export default function ShareModal({
     return { subject, body };
   };
 
-  // 1. Direct Web Gmail Opener (Evaluator Feature Request)
-  const handleOpenGmail = (e: React.FormEvent) => {
-    e.preventDefault();
+  // Direct Web Gmail Opener
+  const handleOpenGmail = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     const { subject, body } = getEmailContent();
     const targetEmail = emailInput.trim();
-    
+
     // Direct Google Mail web compose URL
     const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
       targetEmail
     )}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
     window.open(gmailUrl, "_blank", "noopener,noreferrer");
-    setStatusMessage("Opening Gmail in new tab...");
-    setTimeout(() => setStatusMessage(null), 3000);
-  };
-
-  // 2. Default System Mail Client
-  const handleDefaultMailto = () => {
-    const { subject, body } = getEmailContent();
-    const targetEmail = emailInput.trim();
-    window.open(
-      `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(
-        subject
-      )}&body=${encodeURIComponent(body)}`,
-      "_blank"
-    );
-    setStatusMessage("Opening default mail client...");
+    setStatusMessage("Opening Gmail composer in new tab...");
     setTimeout(() => setStatusMessage(null), 3000);
   };
 
@@ -110,7 +96,7 @@ export default function ShareModal({
                 Share &quot;{docName}&quot;
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Invite via Gmail, email client, or shareable link
+                Invite collaborators directly via Gmail or shareable link
               </p>
             </div>
           </div>
@@ -123,12 +109,12 @@ export default function ShareModal({
           </button>
         </div>
 
-        {/* 1. Email Invitation Section */}
-        <div className="mb-5">
+        {/* 1. Gmail Invitation Section */}
+        <form onSubmit={handleOpenGmail} className="mb-5">
           <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-            Send Invitation via Email
+            Send Invitation via Gmail
           </label>
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             <div className="relative">
               <Mail
                 size={16}
@@ -138,7 +124,7 @@ export default function ShareModal({
                 type="email"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="colleague@gmail.com (or leave empty for link)..."
+                placeholder="colleague@gmail.com (or leave empty to open compose)..."
                 className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   isDark
                     ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500"
@@ -147,38 +133,20 @@ export default function ShareModal({
               />
             </div>
 
-            <div className="flex gap-2 pt-1">
-              {/* Direct Gmail Web Compose Button */}
-              <button
-                type="button"
-                onClick={handleOpenGmail}
-                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
-                title="Open directly in Gmail web composer"
-              >
-                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                  <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.272H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/>
-                </svg>
-                <span>Share via Gmail</span>
-                <ExternalLink size={12} className="opacity-70" />
-              </button>
-
-              {/* Default Mail App Button */}
-              <button
-                type="button"
-                onClick={handleDefaultMailto}
-                className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
-                  isDark
-                    ? "bg-gray-800 hover:bg-gray-700 text-gray-200 border-gray-700"
-                    : "bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-200"
-                }`}
-                title="Open system default mail client"
-              >
-                <Mail size={13} />
-                <span>Mail App</span>
-              </button>
-            </div>
+            {/* Direct Gmail Web Compose Button */}
+            <button
+              type="submit"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+              title="Open directly in Gmail web composer"
+            >
+              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.272H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/>
+              </svg>
+              <span>Share via Gmail</span>
+              <ExternalLink size={13} className="opacity-75" />
+            </button>
           </div>
-        </div>
+        </form>
 
         {statusMessage && (
           <div className="mb-4 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-500 text-xs font-medium flex items-center gap-1.5 animate-in fade-in duration-150">
@@ -190,7 +158,7 @@ export default function ShareModal({
         <div className="relative flex py-1.5 items-center mb-4">
           <div className="flex-grow border-t border-gray-200 dark:border-gray-800" />
           <span className="flex-shrink mx-3 text-xs text-gray-400 font-medium">
-            Permission & General Access
+            Permission & Access
           </span>
           <div className="flex-grow border-t border-gray-200 dark:border-gray-800" />
         </div>

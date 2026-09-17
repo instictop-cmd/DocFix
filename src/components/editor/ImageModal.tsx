@@ -2,7 +2,7 @@
 "use no memo";
 
 import { useState, useRef } from "react";
-import { X, Upload, Link2, Image as ImageIcon, Sparkles, Check } from "lucide-react";
+import { X, Upload, Image as ImageIcon, Sparkles, Check } from "lucide-react";
 
 interface ImageModalProps {
   isOpen: boolean;
@@ -36,8 +36,7 @@ export default function ImageModal({
   onInsertImage,
   isDark = false,
 }: ImageModalProps) {
-  const [activeTab, setActiveTab] = useState<"upload" | "url" | "presets">("upload");
-  const [urlInput, setUrlInput] = useState("");
+  const [activeTab, setActiveTab] = useState<"upload" | "presets">("upload");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -67,12 +66,9 @@ export default function ImageModal({
   };
 
   const handleConfirmInsert = () => {
-    const finalUrl = activeTab === "url" ? urlInput.trim() : previewUrl;
-    if (finalUrl) {
-      onInsertImage(finalUrl);
+    if (previewUrl) {
+      onInsertImage(previewUrl);
       onClose();
-      // Reset state
-      setUrlInput("");
       setPreviewUrl(null);
     }
   };
@@ -97,7 +93,7 @@ export default function ImageModal({
                 Insert Image
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Upload from device, paste web URL, or choose preset
+                Upload from device or choose a preset photo
               </p>
             </div>
           </div>
@@ -123,18 +119,6 @@ export default function ImageModal({
           >
             <Upload size={13} />
             Upload File
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("url")}
-            className={`flex-1 py-1.5 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
-              activeTab === "url"
-                ? "bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-xs"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-900"
-            }`}
-          >
-            <Link2 size={13} />
-            Image URL
           </button>
           <button
             type="button"
@@ -212,53 +196,7 @@ export default function ImageModal({
           </div>
         )}
 
-        {/* Tab 2: Web URL */}
-        {activeTab === "url" && (
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-                Paste Image Link
-              </label>
-              <div className="relative">
-                <Link2
-                  size={16}
-                  className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
-                />
-                <input
-                  type="url"
-                  value={urlInput}
-                  onChange={(e) => {
-                    setUrlInput(e.target.value);
-                    setPreviewUrl(e.target.value);
-                  }}
-                  placeholder="https://images.unsplash.com/..."
-                  className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                    isDark
-                      ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500"
-                      : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400"
-                  }`}
-                />
-              </div>
-            </div>
-
-            {urlInput && (
-              <div className="p-2 border rounded-xl bg-gray-50 dark:bg-gray-800/50 border-gray-200 dark:border-gray-700">
-                <p className="text-[10px] uppercase font-bold text-gray-400 mb-1.5">
-                  Live Preview:
-                </p>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={urlInput}
-                  alt="URL Preview"
-                  className="w-full h-36 object-contain rounded-lg bg-black/10"
-                  onError={() => {}}
-                />
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Tab 3: Presets */}
+        {/* Tab 2: Presets */}
         {activeTab === "presets" && (
           <div className="grid grid-cols-2 gap-3">
             {PRESET_IMAGES.map((preset) => {
@@ -268,7 +206,6 @@ export default function ImageModal({
                   key={preset.name}
                   onClick={() => {
                     setPreviewUrl(preset.url);
-                    setUrlInput(preset.url);
                   }}
                   className={`border rounded-xl p-2 cursor-pointer transition-all ${
                     isSelected
@@ -304,10 +241,10 @@ export default function ImageModal({
           </button>
           <button
             type="button"
-            disabled={!previewUrl && !urlInput.trim()}
+            disabled={!previewUrl}
             onClick={handleConfirmInsert}
             className={`flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer ${
-              previewUrl || urlInput.trim()
+              previewUrl
                 ? "bg-blue-600 hover:bg-blue-700 text-white"
                 : "bg-gray-300 dark:bg-gray-800 text-gray-500 cursor-not-allowed"
             }`}
