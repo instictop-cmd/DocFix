@@ -24,7 +24,10 @@ import TeamChat from "../chat/TeamChat";
 import VersionHistoryModal from "../history/VersionHistoryModal";
 import DocPilotModal from "../ai/DocPilotModal";
 import PollModal from "../polls/PollModal";
+import SaveToast from "../ui/SaveToast";
+import { createSnapshot } from "../../lib/snapshotUtils";
 import {
+  Save,
   FileText,
   Clock,
   Wifi,
@@ -174,6 +177,15 @@ function EditorSurface({
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
 
+  // Autosave & Cmd+S state
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastType, setToastType] = useState<"auto" | "manual">("auto");
+  const [isToastVisible, setIsToastVisible] = useState(false);
+  const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const lastSaveDebounceRef = useRef<NodeJS.Timeout | null>(null);
+  const AUTO_SAVE_DELAY = 5 * 60 * 1000; // 5 minutes
+
   const yMeta = useRef(ydoc.getMap("meta")).current;
 
   // Initialize theme
@@ -288,19 +300,89 @@ function EditorSurface({
     },
   });
 
-  // Shortcut for DocPilot (Cmd+J / Ctrl+J)
+  // Helper: show save toast notification
+  const showSaveToast = useCallback((message: string, type: "auto" | "manual") => {
+    setToastMessage(message);
+    setToastType(type);
+    setIsToastVisible(true);
+    setLastSavedAt(Date.now());
+  }, []);
+
+  // Helper: perform a manual save (Cmd+S)
+  const handleManualSave = useCallback(() => {
+    if (!editor) return;
+
+    // Debounce: ignore if last save was < 10 seconds ago
+    if (lastSaveDebounceRef.current) return;
+
+    const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const snapshot = createSnapshot(ydoc, editor, userName, `📌 Manual save · ${time}`);
+
+    if (snapshot) {
+      showSaveToast(`Checkpoint saved · ${time}`, "manual");
+    } else {
+      // Even if no changes, acknowledge the Cmd+S
+      showSaveToast("Already up to date", "manual");
+    }
+
+    // 10-second debounce to prevent spamming
+    lastSaveDebounceRef.current = setTimeout(() => {
+      lastSaveDebounceRef.current = null;
+    }, 10000);
+  }, [editor, ydoc, userName, showSaveToast]);
+
+  // Shortcut for DocPilot (Cmd+J / Ctrl+J) and Manual Save (Cmd+S / Ctrl+S)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "j") {
         e.preventDefault();
         setIsDocPilotOpen((prev) => !prev);
       }
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault(); // Prevent browser "Save Page" dialog
+        handleManualSave();
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [handleManualSave]);
 
-  // Native Clipboard Paste & Drag-and-Drop Image Handler
+  // Autosave: create snapshot after 5 minutes of inactivity
+  useEffect(() => {
+    if (!editor || isReadOnly) return;
+
+    const resetAutoSaveTimer = () => {
+      // Clear existing timer
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+
+      // Set new 5-minute timer
+      autoSaveTimerRef.current = setTimeout(() => {
+        if (!editor) return;
+        const time = new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        const snapshot = createSnapshot(ydoc, editor, userName, `🔄 Auto-save · ${time}`);
+
+        if (snapshot) {
+          showSaveToast(`Auto-saved · ${time}`, "auto");
+        }
+      }, AUTO_SAVE_DELAY);
+    };
+
+    // Listen to editor updates (every keystroke resets the timer)
+    editor.on("update", resetAutoSaveTimer);
+
+    // Start the initial timer
+    resetAutoSaveTimer();
+
+    return () => {
+      editor.off("update", resetAutoSaveTimer);
+      if (autoSaveTimerRef.current) {
+        clearTimeout(autoSaveTimerRef.current);
+      }
+    };
+  }, [editor, isReadOnly, ydoc, userName, showSaveToast, AUTO_SAVE_DELAY]);
+
   useEffect(() => {
     if (!editor || isReadOnly) return;
 
@@ -573,6 +655,14 @@ function EditorSurface({
               {status === "connected" ? (synced ? "Synced · Real-time" : "Syncing...") : status}
             </span>
           </div>
+          {lastSavedAt && (
+            <div className="flex items-center gap-1 text-[11px] font-medium opacity-70">
+              <Save size={10} />
+              <span>
+                Saved {new Date(lastSavedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Real-time word & char count */}
@@ -586,6 +676,14 @@ function EditorSurface({
           </span>
         </div>
       </footer>
+
+      {/* Save Toast Notification */}
+      <SaveToast
+        message={toastMessage}
+        type={toastType}
+        isVisible={isToastVisible}
+        onDismiss={() => setIsToastVisible(false)}
+      />
 
       {/* DocPilot AI Copilot Modal */}
       <DocPilotModal

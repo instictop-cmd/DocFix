@@ -4,6 +4,7 @@
 import { useEffect, useState, useRef } from "react";
 import * as Y from "yjs";
 import { Editor } from "@tiptap/react";
+import { DocSnapshot, createSnapshot } from "../../lib/snapshotUtils";
 import {
   History,
   X,
@@ -17,16 +18,6 @@ import {
   Clock,
   Plus,
 } from "lucide-react";
-
-export interface DocSnapshot {
-  id: string;
-  name: string;
-  author: string;
-  timestamp: number;
-  wordCount: number;
-  contentHTML: string;
-  contentText: string;
-}
 
 interface VersionHistoryModalProps {
   isOpen: boolean;
@@ -79,23 +70,12 @@ export default function VersionHistoryModal({
 
   // Create a new snapshot
   const handleSaveSnapshot = (customName?: string) => {
-    const html = editor.getHTML();
-    const text = editor.getText();
-    const words = text.trim().split(/\s+/).filter(Boolean).length;
     const label = customName || snapshotLabel.trim() || `Revision (${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })})`;
 
-    const newSnapshot: DocSnapshot = {
-      id: `${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-      name: label,
-      author: currentUserName,
-      timestamp: Date.now(),
-      wordCount: words,
-      contentHTML: html,
-      contentText: text,
-    };
-
-    historyArrayRef.current.push([newSnapshot]);
-    setSelectedSnapshotId(newSnapshot.id);
+    const snapshot = createSnapshot(ydoc, editor, currentUserName, label, { skipDuplicateCheck: true });
+    if (snapshot) {
+      setSelectedSnapshotId(snapshot.id);
+    }
     setSnapshotLabel("");
     setShowCreateInput(false);
   };
