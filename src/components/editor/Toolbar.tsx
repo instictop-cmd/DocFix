@@ -28,6 +28,7 @@ import {
   Image as ImageIcon,
   History,
   MessageSquare,
+  Sparkles,
 } from "lucide-react";
 import { useState } from "react";
 import ImageModal from "./ImageModal";
@@ -43,6 +44,7 @@ interface ToolbarProps {
   onOpenHistory?: () => void;
   onToggleChat?: () => void;
   isChatOpen?: boolean;
+  onOpenDocPilot?: () => void;
 }
 
 interface ToolbarButtonProps {
@@ -104,6 +106,7 @@ export default function Toolbar({
   onOpenHistory,
   onToggleChat,
   isChatOpen = false,
+  onOpenDocPilot,
 }: ToolbarProps) {
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
@@ -191,6 +194,22 @@ export default function Toolbar({
         }`}
       >
         <div className="flex items-center gap-0.5 flex-wrap">
+          {/* DocPilot AI Assistant Button */}
+          {onOpenDocPilot && (
+            <>
+              <button
+                type="button"
+                onClick={onOpenDocPilot}
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:to-pink-700 text-white text-xs font-bold transition-all shadow-xs cursor-pointer mr-1"
+                title="DocPilot AI (Summarize, Polish, Continue Writing)"
+              >
+                <Sparkles size={13} className="animate-pulse" />
+                <span>DocPilot</span>
+              </button>
+              <Divider isDark={isDark} />
+            </>
+          )}
+
           {/* Undo / Redo */}
           <ToolbarButton
             onClick={() => editor.chain().focus().undo().run()}

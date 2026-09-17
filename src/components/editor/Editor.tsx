@@ -17,6 +17,7 @@ import DiagnosticsHUD from "../diagnostics/DiagnosticsHUD";
 import ShareModal from "./ShareModal";
 import TeamChat from "../chat/TeamChat";
 import VersionHistoryModal from "../history/VersionHistoryModal";
+import DocPilotModal from "../ai/DocPilotModal";
 import {
   FileText,
   Clock,
@@ -29,6 +30,7 @@ import {
   Share2,
   MessageSquare,
   History,
+  Sparkles,
 } from "lucide-react";
 
 // Pre-defined color palette
@@ -159,6 +161,7 @@ function EditorSurface({
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isDocPilotOpen, setIsDocPilotOpen] = useState(false);
 
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
@@ -266,6 +269,18 @@ function EditorSurface({
       setWordCount(words);
     },
   });
+
+  // Shortcut for DocPilot (Cmd+J / Ctrl+J)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "j") {
+        e.preventDefault();
+        setIsDocPilotOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   // Native Clipboard Paste & Drag-and-Drop Image Handler
   useEffect(() => {
@@ -431,7 +446,20 @@ function EditorSurface({
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Share / Invite Button (With Gmail support) */}
+            {/* DocPilot AI Quick Trigger */}
+            {!isReadOnly && (
+              <button
+                type="button"
+                onClick={() => setIsDocPilotOpen(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:to-pink-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs cursor-pointer"
+                title="DocPilot AI (Ctrl+J)"
+              >
+                <Sparkles size={13} className="animate-pulse" />
+                <span className="hidden md:inline">DocPilot</span>
+              </button>
+            )}
+
+            {/* Share / Invite Button */}
             <button
               type="button"
               onClick={() => setIsShareModalOpen(true)}
@@ -486,6 +514,7 @@ function EditorSurface({
         onOpenHistory={() => setIsHistoryModalOpen(true)}
         onToggleChat={() => setIsChatOpen(!isChatOpen)}
         isChatOpen={isChatOpen}
+        onOpenDocPilot={() => setIsDocPilotOpen(true)}
       />
 
       {/* Main Canvas Area */}
@@ -553,7 +582,16 @@ function EditorSurface({
         </div>
 
         <div className="flex items-center gap-3 text-[11px]">
-          {/* Quick Chat & History Triggers */}
+          {/* Quick DocPilot, Chat & History Triggers */}
+          <button
+            type="button"
+            onClick={() => setIsDocPilotOpen(true)}
+            className="flex items-center gap-1 text-purple-400 hover:underline cursor-pointer font-semibold"
+          >
+            <Sparkles size={12} />
+            <span>DocPilot</span>
+          </button>
+          <span>·</span>
           <button
             type="button"
             onClick={() => setIsChatOpen(!isChatOpen)}
@@ -590,7 +628,15 @@ function EditorSurface({
         </div>
       </footer>
 
-      {/* Google Docs-Style Share Modal (with Direct Gmail Composer) */}
+      {/* DocPilot AI Copilot Modal */}
+      <DocPilotModal
+        isOpen={isDocPilotOpen}
+        onClose={() => setIsDocPilotOpen(false)}
+        editor={editor}
+        isDark={isDark}
+      />
+
+      {/* Google Docs-Style Share Modal */}
       <ShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
