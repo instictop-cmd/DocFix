@@ -595,9 +595,9 @@ function EditorSurface({
 
   if (!editor) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-900 text-slate-300">
+      <div className="flex items-center justify-center h-screen bg-[#FAF7F2] text-stone-600">
         <div className="flex items-center gap-3">
-          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-orange-400 border-t-transparent rounded-full animate-spin" />
           <span className="font-medium text-sm">Initializing TipTap Surface...</span>
         </div>
       </div>
@@ -605,21 +605,21 @@ function EditorSurface({
   }
 
   return (
-    <div className={`flex flex-col h-screen transition-colors ${isDark ? "bg-gray-950 text-gray-100" : "bg-gray-50 text-gray-900"}`}>
+    <div className={`flex flex-col h-screen transition-colors ${isDark ? "bg-[#161412] text-stone-100" : "bg-[#FAF7F2] text-stone-800"}`}>
       {/* Top Header Bar */}
       {!isZenMode && (
-        <div className={`flex items-center justify-between px-4 py-2 border-b transition-colors ${isDark ? "bg-gray-900 border-gray-800/80" : "bg-white border-gray-200/80"}`}>
+        <div className={`flex items-center justify-between px-4 py-2 border-b transition-colors ${isDark ? "bg-[#1E1B18] border-stone-800/80" : "bg-white/95 border-stone-200/80"}`}>
           <div className="flex items-center gap-2.5">
             <a
               href="/"
-              className="text-lg font-bold text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-1.5 group"
+              className="text-lg font-bold transition-colors flex items-center gap-1.5 group"
               title="Back to Dashboard"
             >
               <span className="group-hover:scale-110 transition-transform">📄</span>
-              <span className="hidden sm:inline font-extrabold tracking-tight">DocFix</span>
+              <span className="hidden sm:inline font-black tracking-tight bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 bg-clip-text text-transparent">DocFix</span>
             </a>
 
-            <div className={`h-4 w-px mx-0.5 hidden sm:block ${isDark ? "bg-gray-800" : "bg-gray-200"}`} />
+            <div className={`h-4 w-px mx-0.5 hidden sm:block ${isDark ? "bg-stone-800" : "bg-stone-200"}`} />
 
             {/* Editable Title */}
             <input
@@ -629,33 +629,33 @@ function EditorSurface({
               onChange={(e) => handleTitleChange(e.target.value)}
               onBlur={handleTitleBlur}
               placeholder="Untitled Document"
-              className={`text-sm sm:text-base font-semibold px-2 py-0.5 rounded-md transition-all max-w-[160px] sm:max-w-xs md:max-w-md focus:outline-none focus:ring-1 focus:ring-blue-500/50 ${
+              className={`text-sm sm:text-base font-semibold px-2 py-0.5 rounded-md transition-all max-w-[160px] sm:max-w-xs md:max-w-md focus:outline-none focus:ring-1 focus:ring-orange-400/50 ${
                 isDark
-                  ? "bg-transparent text-gray-100 hover:bg-gray-800/60 focus:bg-gray-800"
-                  : "bg-transparent text-gray-900 hover:bg-gray-100/80 focus:bg-gray-50"
+                  ? "bg-transparent text-stone-100 hover:bg-stone-800/60 focus:bg-stone-800"
+                  : "bg-transparent text-stone-800 hover:bg-stone-100/80 focus:bg-stone-50"
               }`}
               title={isReadOnly ? "Read-Only Document" : "Click to rename document"}
             />
 
             {/* Role Badge */}
             {isReadOnly ? (
-              <span className="flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 bg-amber-500/10 text-amber-500 border border-amber-500/20 rounded-full">
+              <span className="flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-200/60 rounded-full">
                 <Lock size={11} /> Viewer
               </span>
             ) : (
-              <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-full hidden md:inline">
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 bg-orange-50 text-orange-800 border border-orange-200/60 rounded-full hidden md:inline">
                 Editor
               </span>
             )}
 
             {/* Dynamic Active Section & Page Breadcrumb */}
             {activeHeading && (
-              <div className="hidden xl:flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 font-medium animate-in fade-in duration-150">
-                <span className="text-gray-300 dark:text-gray-700">›</span>
-                <span className="truncate max-w-[140px] text-gray-700 dark:text-gray-300 font-semibold">
+              <div className="hidden xl:flex items-center gap-1.5 text-xs text-stone-500 dark:text-stone-400 font-medium animate-in fade-in duration-150">
+                <span className="text-stone-300 dark:text-stone-700">›</span>
+                <span className="truncate max-w-[140px] text-stone-700 dark:text-stone-300 font-semibold">
                   {activeHeading}
                 </span>
-                <span className="px-1.5 py-0.2 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded text-[10px] font-bold">
+                <span className="px-1.5 py-0.2 bg-orange-50 text-orange-700 border border-orange-200/60 rounded text-[10px] font-bold">
                   Page {currentViewPage}/{totalPages}
                 </span>
               </div>
@@ -668,7 +668,7 @@ function EditorSurface({
             <button
               type="button"
               onClick={() => setIsShareModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition-all shadow-xs hover:shadow-sm active:scale-95 cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-semibold transition-all shadow-sm shadow-orange-500/20 active:scale-95 cursor-pointer"
               title="Share document via Gmail, email, or link"
             >
               <Share2 size={13} />
@@ -686,8 +686,8 @@ function EditorSurface({
                     : networkCondition === "lag"
                       ? "bg-amber-500/10 text-amber-500 border-amber-500/30 font-semibold"
                       : isDark
-                        ? "bg-gray-800/80 text-gray-300 border-gray-700 hover:bg-gray-800"
-                        : "bg-gray-100/90 text-gray-700 border-gray-200 hover:bg-gray-100"
+                        ? "bg-stone-800/80 text-stone-300 border-stone-700 hover:bg-stone-800"
+                        : "bg-stone-100/90 text-stone-700 border-stone-200 hover:bg-stone-100"
                 }`}
                 title="Simulate network conditions for judging"
               >
@@ -753,7 +753,7 @@ function EditorSurface({
         <div
           ref={canvasContainerRef}
           onScroll={handleCanvasScroll}
-          className={`flex-1 overflow-y-auto cursor-text ${isDark ? "bg-[#0B0F17]" : "bg-[#F8F9FA]"}`}
+          className={`flex-1 overflow-y-auto cursor-text ${isDark ? "bg-[#141210]" : "bg-[#FAF7F2]"}`}
           onClick={() => {
             if (!editor.isFocused) {
               editor.commands.focus("end");
@@ -765,13 +765,13 @@ function EditorSurface({
               isPaginated
                 ? `paper-paginated mx-auto my-8 border ${
                     isDark
-                      ? "bg-gray-900 border-gray-800 text-gray-100 shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
-                      : "bg-white border-gray-300/80 text-gray-900 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
+                      ? "bg-stone-900 border-stone-800 text-stone-100 shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+                      : "bg-white border-stone-200 text-stone-900 shadow-[0_8px_32px_rgba(0,0,0,0.06)]"
                   }`
                 : `max-w-4xl mx-auto my-8 rounded-2xl border ${
                     isDark
-                      ? "bg-gray-900 border-gray-800/80 text-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
-                      : "bg-white border-gray-200/70 text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.02),0_6px_16px_rgba(0,0,0,0.04),0_16px_36px_rgba(0,0,0,0.06)]"
+                      ? "bg-stone-900 border-stone-800/80 text-stone-100 shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
+                      : "bg-white border-stone-200/80 text-stone-900 shadow-[0_1px_3px_rgba(0,0,0,0.02),0_6px_16px_rgba(0,0,0,0.03)]"
                   }`
             }`}
             onClick={(e) => {
@@ -785,11 +785,11 @@ function EditorSurface({
             {isPaginated && (
               <div
                 className={`px-16 pt-6 pb-2 text-[10px] uppercase font-semibold tracking-wider flex justify-between border-b select-none transition-colors ${
-                  isDark ? "text-gray-500 border-gray-800" : "text-gray-400 border-gray-100"
+                  isDark ? "text-stone-500 border-stone-800" : "text-stone-400 border-stone-100"
                 }`}
               >
                 <span>DocFix · {title} {activeHeading ? `› ${activeHeading}` : ""}</span>
-                <span className="text-blue-600 dark:text-blue-400 font-bold">A4 Page {currentViewPage} of {totalPages}</span>
+                <span className="text-orange-600 dark:text-orange-400 font-bold">A4 Page {currentViewPage} of {totalPages}</span>
               </div>
             )}
 

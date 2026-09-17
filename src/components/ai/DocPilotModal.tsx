@@ -164,22 +164,22 @@ export default function DocPilotModal({
         <div
           className={`flex items-center justify-between px-6 py-4 border-b rounded-t-2xl ${
             isDark
-              ? "border-gray-800 bg-gradient-to-r from-indigo-950/80 to-purple-950/80"
-              : "border-gray-200 bg-gradient-to-r from-indigo-50/80 to-purple-50/80"
+              ? "border-stone-800 bg-[#1E1B18]"
+              : "border-stone-200/80 bg-[#FAF7F2]"
           }`}
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 text-white flex items-center justify-center font-bold text-base shadow-md">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 via-amber-500 to-rose-400 text-white flex items-center justify-center font-bold text-base shadow-md">
               <Sparkles size={20} className="animate-pulse" />
             </div>
             <div>
-              <h3 className="font-extrabold text-base text-gray-900 dark:text-white leading-tight flex items-center gap-2">
+              <h3 className="font-extrabold text-base text-stone-900 dark:text-stone-100 leading-tight flex items-center gap-2">
                 <span>DocPilot</span>
-                <span className="text-[10px] font-bold px-2 py-0.5 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full uppercase tracking-wider flex items-center gap-1">
+                <span className="text-[10px] font-bold px-2 py-0.5 bg-orange-50 text-orange-800 border border-orange-200/60 rounded-full uppercase tracking-wider flex items-center gap-1">
                   <Cpu size={10} /> DeepSeek Engine
                 </span>
               </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-stone-500 dark:text-stone-400">
                 AI writing assistant, summarizer & idea engine
               </p>
             </div>
@@ -188,7 +188,7 @@ export default function DocPilotModal({
             <button
               type="button"
               onClick={() => setShowKeySettings(!showKeySettings)}
-              className="text-gray-400 hover:text-indigo-400 p-1.5 rounded-lg cursor-pointer"
+              className="text-stone-400 hover:text-orange-500 p-1.5 rounded-lg cursor-pointer transition-colors"
               title="Configure DeepSeek / OpenRouter API Key"
             >
               <Settings size={16} />
@@ -196,7 +196,7 @@ export default function DocPilotModal({
             <button
               type="button"
               onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg cursor-pointer"
+              className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1.5 rounded-lg cursor-pointer transition-colors"
             >
               <X size={18} />
             </button>
@@ -205,13 +205,13 @@ export default function DocPilotModal({
 
         {/* API Key Settings Drawer (Optional for Custom DeepSeek Key) */}
         {showKeySettings && (
-          <div className={`p-4 border-b space-y-2 ${isDark ? "bg-gray-800/60 border-gray-700" : "bg-indigo-50/60 border-indigo-100"}`}>
+          <div className={`p-4 border-b space-y-2 ${isDark ? "bg-stone-800/60 border-stone-700" : "bg-orange-50/60 border-orange-100"}`}>
             <div className="flex items-center justify-between">
-              <label className="text-xs font-bold text-gray-700 dark:text-gray-300 flex items-center gap-1.5">
-                <Key size={13} className="text-indigo-400" />
+              <label className="text-xs font-bold text-stone-700 dark:text-stone-300 flex items-center gap-1.5">
+                <Key size={13} className="text-orange-500" />
                 DeepSeek / OpenRouter API Key
               </label>
-              <span className="text-[10px] text-gray-400">Optional · Saved locally</span>
+              <span className="text-[10px] text-stone-400">Optional · Saved locally</span>
             </div>
             <div className="flex gap-2">
               <input
@@ -219,21 +219,21 @@ export default function DocPilotModal({
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
                 placeholder="sk-... (DeepSeek or OpenRouter Key)"
-                className={`flex-1 px-3 py-1.5 rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                className={`flex-1 px-3 py-1.5 rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-orange-400/50 ${
                   isDark
-                    ? "bg-gray-900 border-gray-700 text-white"
-                    : "bg-white border-gray-300 text-gray-900"
+                    ? "bg-stone-900 border-stone-700 text-white"
+                    : "bg-white border-stone-300 text-stone-900"
                 }`}
               />
               <button
                 type="button"
                 onClick={handleSaveApiKey}
-                className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+                className="px-3.5 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
               >
                 {keySaved ? "Saved!" : "Save Key"}
               </button>
             </div>
-            <p className="text-[10px] text-gray-500 dark:text-gray-400">
+            <p className="text-[10px] text-stone-500 dark:text-stone-400">
               Works with free DeepSeek keys (`platform.deepseek.com`) or OpenRouter (`openrouter.ai`).
             </p>
           </div>
@@ -261,16 +261,16 @@ export default function DocPilotModal({
                   onClick={() => handleActionClick(action.id as AIActionType)}
                   className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
                     isSelected
-                      ? "bg-indigo-600 text-white border-indigo-600 shadow-xs"
+                      ? "bg-orange-500 text-white border-orange-500 shadow-xs"
                       : isDark
-                        ? "bg-gray-800/60 border-gray-800 hover:bg-gray-800 text-gray-200"
-                        : "bg-gray-50 border-gray-200 hover:bg-gray-100 text-gray-800"
+                        ? "bg-stone-800/60 border-stone-800 hover:bg-stone-800 text-stone-200"
+                        : "bg-stone-50 border-stone-200 hover:border-orange-200 hover:bg-white text-stone-800"
                   }`}
                 >
                   <p className="font-bold text-xs">{action.label}</p>
                   <p
                     className={`text-[10px] ${
-                      isSelected ? "text-indigo-100" : "text-gray-400"
+                      isSelected ? "text-orange-100" : "text-stone-400"
                     }`}
                   >
                     {action.desc}
@@ -283,24 +283,24 @@ export default function DocPilotModal({
 
         {/* Custom Prompt Input */}
         {selectedAction === "custom" && (
-          <form onSubmit={handleCustomSubmit} className="p-4 border-b border-gray-100 dark:border-gray-800">
+          <form onSubmit={handleCustomSubmit} className="p-4 border-b border-stone-100 dark:border-stone-800">
             <div className="flex gap-2">
               <input
                 type="text"
                 value={customPrompt}
                 onChange={(e) => setCustomPrompt(e.target.value)}
                 placeholder="Ask DocPilot to explain, generate ideas, or rephrase..."
-                className={`flex-1 px-3.5 py-2 rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+                className={`flex-1 px-3.5 py-2 rounded-xl border text-xs focus:outline-none focus:ring-2 focus:ring-orange-400/50 ${
                   isDark
-                    ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500"
-                    : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400"
+                    ? "bg-stone-800 border-stone-700 text-white placeholder-stone-500"
+                    : "bg-[#FAF7F2] border-stone-200 text-stone-900 placeholder-stone-400"
                 }`}
                 autoFocus
               />
               <button
                 type="submit"
                 disabled={!customPrompt.trim() || isGenerating}
-                className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer flex items-center gap-1.5"
+                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-orange-500/20 cursor-pointer flex items-center gap-1.5"
               >
                 <Send size={13} />
                 <span>Generate</span>
@@ -313,8 +313,8 @@ export default function DocPilotModal({
         <div className="flex-1 overflow-y-auto p-5 space-y-3">
           {isGenerating ? (
             <div className="flex flex-col items-center justify-center h-48 text-center space-y-3">
-              <div className="w-10 h-10 rounded-full border-2 border-indigo-500 border-t-transparent animate-spin" />
-              <p className="text-xs font-semibold text-indigo-400 animate-pulse">
+              <div className="w-10 h-10 rounded-full border-2 border-orange-500 border-t-transparent animate-spin" />
+              <p className="text-xs font-semibold text-orange-500 animate-pulse">
                 DocPilot & DeepSeek are synthesizing context...
               </p>
             </div>
@@ -322,18 +322,18 @@ export default function DocPilotModal({
             <div
               className={`p-4 rounded-xl border transition-all text-xs leading-relaxed ${
                 isDark
-                  ? "bg-gray-950 border-gray-800 text-gray-200"
-                  : "bg-slate-50 border-gray-200 text-gray-800"
+                  ? "bg-stone-950 border-stone-800 text-stone-200"
+                  : "bg-[#FAF7F2]/70 border-stone-200 text-stone-800"
               }`}
             >
-              <div className="flex items-center justify-between pb-2 mb-2 border-b border-gray-200 dark:border-gray-800">
-                <span className="font-bold text-[11px] text-indigo-400 flex items-center gap-1">
+              <div className="flex items-center justify-between pb-2 mb-2 border-b border-stone-200 dark:border-stone-800">
+                <span className="font-bold text-[11px] text-orange-600 dark:text-orange-400 flex items-center gap-1">
                   <Sparkles size={12} /> DocPilot DeepSeek Output:
                 </span>
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
+                  className="flex items-center gap-1 text-[11px] text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
                 >
                   {copied ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
                   <span>{copied ? "Copied!" : "Copy"}</span>
@@ -344,10 +344,10 @@ export default function DocPilotModal({
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-44 text-center text-gray-400">
-              <Wand2 size={24} className="mb-2 opacity-50 text-indigo-400" />
-              <p className="text-xs font-medium">Select a capability above to generate AI content</p>
-              <p className="text-[11px] text-gray-500 mt-1">
+            <div className="flex flex-col items-center justify-center h-44 text-center text-stone-400">
+              <Wand2 size={24} className="mb-2 opacity-50 text-orange-400" />
+              <p className="text-xs font-medium text-stone-600 dark:text-stone-300">Select a capability above to generate AI content</p>
+              <p className="text-[11px] text-stone-400 mt-1">
                 DocPilot automatically reads your current document context.
               </p>
             </div>
@@ -358,13 +358,13 @@ export default function DocPilotModal({
         {generatedResult && !isGenerating && (
           <div
             className={`flex items-center justify-between px-6 py-3.5 border-t rounded-b-2xl ${
-              isDark ? "bg-gray-900 border-gray-800" : "bg-gray-50 border-gray-200"
+              isDark ? "bg-stone-900 border-stone-800" : "bg-[#FAF7F2] border-stone-200/80"
             }`}
           >
             <button
               type="button"
               onClick={() => generateAIResponse(selectedAction)}
-              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-indigo-400 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 text-xs text-stone-500 hover:text-orange-500 transition-colors cursor-pointer"
             >
               <RefreshCw size={13} />
               <span>Regenerate</span>
@@ -374,7 +374,7 @@ export default function DocPilotModal({
               <button
                 type="button"
                 onClick={() => handleInsert("cursor")}
-                className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-md cursor-pointer"
+                className="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-orange-500 via-amber-500 to-rose-400 hover:from-orange-600 hover:to-rose-500 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-orange-500/20 cursor-pointer"
               >
                 {applied ? <Check size={14} /> : <Zap size={14} />}
                 <span>{applied ? "Inserted!" : "Insert into Document"}</span>

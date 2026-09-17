@@ -78,8 +78,8 @@ body {
 }
 
 .tiptap blockquote {
-  border-left: 3px solid #6366f1;
-  background: rgba(99, 102, 241, 0.05);
+  border-left: 3px solid #f97316;
+  background: rgba(249, 115, 22, 0.05);
   border-radius: 0 10px 10px 0;
   padding: 0.75rem 1.25rem;
   margin: 1.2em 0;
@@ -88,17 +88,17 @@ body {
 }
 
 .tiptap code {
-  background-color: rgba(148, 163, 184, 0.16);
+  background-color: rgba(249, 115, 22, 0.08);
   border-radius: 6px;
   padding: 0.2em 0.45em;
   font-family: var(--font-mono), monospace;
   font-size: 0.88em;
-  color: #e11d48;
+  color: #ea580c;
 }
 
 .tiptap hr {
   border: none;
-  border-top: 1px dashed rgba(148, 163, 184, 0.4);
+  border-top: 1px dashed rgba(249, 115, 22, 0.35);
   margin: 3rem 0;
   position: relative;
   overflow: visible;
@@ -116,9 +116,9 @@ body {
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.1em;
-  color: #94a3b8;
+  color: #ea580c;
   border-radius: 9999px;
-  border: 1px solid rgba(148, 163, 184, 0.3);
+  border: 1px solid rgba(249, 115, 22, 0.3);
 }
 
 .tiptap strong {
@@ -147,7 +147,7 @@ body {
 }
 
 .tiptap img.ProseMirror-selectednode {
-  outline: 2.5px solid #3b82f6;
+  outline: 2.5px solid #f97316;
   outline-offset: 2px;
 }
 
@@ -178,7 +178,7 @@ ul[data-type="taskList"] li > label input[type="checkbox"] {
   cursor: pointer;
   width: 1.15em;
   height: 1.15em;
-  accent-color: #4f46e5;
+  accent-color: #f97316;
   border-radius: 5px;
 }
 
@@ -199,14 +199,14 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
   table-layout: fixed;
   overflow: hidden;
   border-radius: 10px;
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  border: 1px solid rgba(249, 115, 22, 0.2);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
 .tiptap table td,
 .tiptap table th {
   min-width: 1em;
-  border: 1px solid rgba(148, 163, 184, 0.25);
+  border: 1px solid rgba(249, 115, 22, 0.2);
   padding: 10px 14px;
   vertical-align: top;
   box-sizing: border-box;
@@ -216,11 +216,11 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
 .tiptap table th {
   font-weight: 700;
   text-align: left;
-  background-color: rgba(99, 102, 241, 0.07);
+  background-color: rgba(249, 115, 22, 0.07);
 }
 
 .tiptap table tr:hover td {
-  background-color: rgba(99, 102, 241, 0.02);
+  background-color: rgba(249, 115, 22, 0.02);
 }
 
 .tiptap table .selectedCell:after {
@@ -228,7 +228,7 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
   position: absolute;
   content: "";
   left: 0; right: 0; top: 0; bottom: 0;
-  background: rgba(59, 130, 246, 0.15);
+  background: rgba(249, 115, 22, 0.15);
   pointer-events: none;
 }
 
@@ -287,7 +287,7 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
 .tiptap .selection,
 .ProseMirror-selectednode {
   display: inline;
-  background-color: rgba(59, 130, 246, 0.22);
+  background-color: rgba(249, 115, 22, 0.2);
 }
 
 /* ==========================================

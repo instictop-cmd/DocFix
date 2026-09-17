@@ -240,21 +240,21 @@ export default function PagesSidebar({
     <aside
       className={`w-64 sm:w-72 border-r flex flex-col shrink-0 select-none z-20 transition-all duration-200 animate-in slide-in-from-left-4 ${
         isDark
-          ? "bg-gray-900/95 border-gray-800 text-gray-200"
-          : "bg-white/95 border-gray-200 text-gray-800"
+          ? "bg-[#1A1815] border-stone-800 text-stone-200"
+          : "bg-white/95 border-stone-200/80 text-stone-800"
       }`}
     >
       {/* Header */}
       <div
         className={`flex items-center justify-between px-3.5 py-3 border-b ${
-          isDark ? "border-gray-800 bg-gray-900" : "border-gray-200 bg-gray-50/80"
+          isDark ? "border-stone-800 bg-[#1F1C18]" : "border-stone-200/80 bg-[#FAF7F2]"
         }`}
       >
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold shadow-xs">
+          <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-orange-500 to-amber-400 text-white flex items-center justify-center font-bold shadow-xs">
             <Layers size={13} />
           </div>
-          <span className="font-bold text-xs tracking-tight">
+          <span className="font-bold text-xs tracking-tight text-stone-800 dark:text-stone-100">
             Pages ({pages.length})
           </span>
         </div>
@@ -262,7 +262,7 @@ export default function PagesSidebar({
         <button
           type="button"
           onClick={onClose}
-          className="p-1 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer transition-colors"
+          className="p-1 rounded-lg hover:bg-stone-200/60 dark:hover:bg-stone-800 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer transition-colors"
           title="Collapse Pages sidebar"
         >
           <ChevronLeft size={16} />
@@ -282,11 +282,11 @@ export default function PagesSidebar({
               className={`p-3 rounded-xl border transition-all cursor-pointer group relative ${
                 isActive
                   ? isDark
-                    ? "bg-blue-950/30 border-blue-500/60 ring-2 ring-blue-500/20 shadow-sm"
-                    : "bg-blue-50/70 border-blue-400 ring-2 ring-blue-400/20 shadow-xs"
+                    ? "bg-orange-950/20 border-orange-500/60 ring-2 ring-orange-500/20 shadow-sm"
+                    : "bg-orange-50/70 border-orange-400 ring-2 ring-orange-400/20 shadow-xs"
                   : isDark
-                    ? "bg-gray-800/40 border-gray-800 hover:border-gray-700 hover:bg-gray-800/70"
-                    : "bg-gray-50/60 border-gray-200/80 hover:border-gray-300 hover:bg-white"
+                    ? "bg-stone-800/40 border-stone-800 hover:border-stone-700 hover:bg-stone-800/70"
+                    : "bg-stone-50/60 border-stone-200/80 hover:border-orange-200 hover:bg-white"
               }`}
             >
               {/* Top Row: Page badge, word count, 3-dot button */}
@@ -295,15 +295,15 @@ export default function PagesSidebar({
                   <span
                     className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${
                       isActive
-                        ? "bg-blue-600 text-white"
+                        ? "bg-orange-500 text-white"
                         : isDark
-                          ? "bg-gray-700 text-gray-300"
-                          : "bg-gray-200 text-gray-700"
+                          ? "bg-stone-700 text-stone-300"
+                          : "bg-stone-200 text-stone-700"
                     }`}
                   >
                     Page {page.pageNumber}
                   </span>
-                  <span className="text-[10px] text-gray-400 font-medium">
+                  <span className="text-[10px] text-stone-400 font-medium">
                     {page.wordCount} words
                   </span>
                 </div>
@@ -316,7 +316,7 @@ export default function PagesSidebar({
                       e.stopPropagation();
                       setMenuOpenPage(isMenuOpen ? null : page.pageNumber);
                     }}
-                    className="p-1 rounded-md text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-200/60 dark:hover:bg-gray-700/60 transition-colors cursor-pointer"
+                    className="p-1 rounded-md text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-200/60 dark:hover:bg-stone-700/60 transition-colors cursor-pointer"
                     title="Page actions"
                   >
                     <MoreVertical size={13} />
@@ -326,45 +326,45 @@ export default function PagesSidebar({
                   {isMenuOpen && (
                     <div
                       ref={menuRef}
-                      className={`absolute right-0 top-6 w-48 rounded-xl shadow-2xl border p-1 z-50 text-xs animate-in fade-in zoom-in-95 duration-100 ${
+                      className={`absolute right-0 top-6 w-48 rounded-xl shadow-xl border p-1 z-50 text-xs animate-in fade-in zoom-in-95 duration-100 ${
                         isDark
-                          ? "bg-gray-900 border-gray-700 text-gray-200"
-                          : "bg-white border-gray-200 text-gray-700"
+                          ? "bg-stone-900 border-stone-700 text-stone-200"
+                          : "bg-white border-stone-200 text-stone-700"
                       }`}
                     >
                       {/* Download Submenu */}
-                      <div className="px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-gray-400">
+                      <div className="px-2 py-1 text-[9px] font-bold uppercase tracking-wider text-stone-400">
                         Download Page {page.pageNumber}
                       </div>
                       <button
                         type="button"
                         onClick={(e) => handleExportPage(index, "pdf", e)}
-                        className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-blue-600 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
+                        className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-orange-500 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
                       >
                         <Printer size={12} /> Save as PDF
                       </button>
                       <button
                         type="button"
                         onClick={(e) => handleExportPage(index, "md", e)}
-                        className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-blue-600 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
+                        className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-orange-500 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
                       >
                         <FileDown size={12} /> Markdown (.md)
                       </button>
                       <button
                         type="button"
                         onClick={(e) => handleExportPage(index, "html", e)}
-                        className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-blue-600 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
+                        className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-orange-500 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
                       >
                         <FileDown size={12} /> HTML (.html)
                       </button>
 
-                      <div className="border-t my-1 border-gray-200 dark:border-gray-800" />
+                      <div className="border-t my-1 border-stone-200 dark:border-stone-800" />
 
                       {/* Management Actions */}
                       <button
                         type="button"
                         onClick={(e) => handleDuplicatePage(index, e)}
-                        className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-blue-600 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
+                        className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-orange-500 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
                       >
                         <Copy size={12} /> Duplicate Page
                       </button>
@@ -375,7 +375,7 @@ export default function PagesSidebar({
                           setRenamingPage(page.pageNumber);
                           setMenuOpenPage(null);
                         }}
-                        className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-blue-600 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
+                        className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-orange-500 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
                       >
                         <Edit2 size={12} /> Rename Title
                       </button>
@@ -387,13 +387,13 @@ export default function PagesSidebar({
                         <Eraser size={12} /> Clear Content
                       </button>
 
-                      <div className="border-t my-1 border-gray-200 dark:border-gray-800" />
+                      <div className="border-t my-1 border-stone-200 dark:border-stone-800" />
 
                       {/* Delete Page */}
                       <button
                         type="button"
                         onClick={(e) => handleDeletePage(index, e)}
-                        className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-red-600 hover:text-white text-red-500 font-medium flex items-center gap-2 cursor-pointer transition-colors"
+                        className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-red-500 hover:text-white text-red-500 font-medium flex items-center gap-2 cursor-pointer transition-colors"
                       >
                         <Trash2 size={12} /> Delete Page
                       </button>
@@ -421,15 +421,15 @@ export default function PagesSidebar({
                     }
                   }}
                   onClick={(e) => e.stopPropagation()}
-                  className="w-full px-2 py-1 text-xs rounded border bg-white dark:bg-gray-800 text-gray-900 dark:text-white mb-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="w-full px-2 py-1 text-xs rounded border bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 mb-1 focus:outline-none focus:ring-1 focus:ring-orange-400/50"
                 />
               ) : (
-                <h4 className="text-xs font-bold truncate text-gray-900 dark:text-gray-100 mb-0.5">
+                <h4 className="text-xs font-bold truncate text-stone-900 dark:text-stone-100 mb-0.5">
                   {page.title}
                 </h4>
               )}
 
-              <p className="text-[11px] text-gray-400 dark:text-gray-500 line-clamp-2 leading-snug">
+              <p className="text-[11px] text-stone-400 dark:text-stone-500 line-clamp-2 leading-snug">
                 {page.snippet}
               </p>
             </div>
@@ -440,13 +440,13 @@ export default function PagesSidebar({
       {/* Bottom Actions: Add Page Button */}
       <div
         className={`p-3 border-t ${
-          isDark ? "border-gray-800 bg-gray-900/60" : "border-gray-200 bg-gray-50/50"
+          isDark ? "border-stone-800 bg-[#1F1C18]" : "border-stone-200/80 bg-[#FAF7F2]"
         }`}
       >
         <button
           type="button"
           onClick={handleAddPage}
-          className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+          className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-orange-500 hover:bg-orange-600 active:scale-95 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-orange-500/20 cursor-pointer"
         >
           <Plus size={14} />
           <span>Add New Page</span>

@@ -120,21 +120,21 @@ export default function VersionHistoryModal({
         {/* Header */}
         <div
           className={`flex items-center justify-between px-6 py-4 border-b ${
-            isDark ? "border-gray-800 bg-gray-900" : "border-gray-200 bg-gray-50"
+            isDark ? "border-stone-800 bg-[#1E1B18]" : "border-stone-200/80 bg-[#FAF7F2]"
           }`}
         >
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold text-base shadow-xs">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-400 text-white flex items-center justify-center font-bold text-base shadow-xs">
               <History size={18} />
             </div>
             <div>
-              <h3 className="font-bold text-base text-gray-900 dark:text-white leading-tight flex items-center gap-2">
+              <h3 className="font-bold text-base text-stone-900 dark:text-stone-100 leading-tight flex items-center gap-2">
                 Document Version History
-                <span className="text-[11px] font-semibold px-2 py-0.5 bg-purple-500/10 text-purple-500 border border-purple-500/20 rounded-full">
+                <span className="text-[11px] font-semibold px-2 py-0.5 bg-orange-50 text-orange-800 border border-orange-200/60 rounded-full">
                   {snapshots.length} Snapshots
                 </span>
               </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-stone-500 dark:text-stone-400">
                 Browse CRDT snapshots, compare states, and restore earlier revisions
               </p>
             </div>
@@ -142,7 +142,7 @@ export default function VersionHistoryModal({
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg cursor-pointer"
+            className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1.5 rounded-lg cursor-pointer transition-colors"
           >
             <X size={18} />
           </button>
@@ -153,11 +153,11 @@ export default function VersionHistoryModal({
           {/* Left: Snapshot Timeline */}
           <div
             className={`w-72 sm:w-80 border-r flex flex-col ${
-              isDark ? "border-gray-800 bg-gray-900/60" : "border-gray-200 bg-gray-50/50"
+              isDark ? "border-stone-800 bg-stone-900/60" : "border-stone-200/80 bg-[#FAF7F2]/60"
             }`}
           >
             {/* Action Bar */}
-            <div className="p-3 border-b border-gray-200 dark:border-gray-800">
+            <div className="p-3 border-b border-stone-200 dark:border-stone-800">
               {showCreateInput ? (
                 <div className="space-y-2">
                   <input
@@ -165,10 +165,10 @@ export default function VersionHistoryModal({
                     value={snapshotLabel}
                     onChange={(e) => setSnapshotLabel(e.target.value)}
                     placeholder="Checkpoint name (e.g. v1.0)..."
-                    className={`w-full px-3 py-1.5 text-xs rounded-lg border focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                    className={`w-full px-3 py-1.5 text-xs rounded-lg border focus:outline-none focus:ring-2 focus:ring-orange-400/50 ${
                       isDark
-                        ? "bg-gray-800 border-gray-700 text-white"
-                        : "bg-white border-gray-300 text-gray-900"
+                        ? "bg-stone-800 border-stone-700 text-white"
+                        : "bg-white border-stone-300 text-stone-900"
                     }`}
                     autoFocus
                     onKeyDown={(e) => {
@@ -179,14 +179,14 @@ export default function VersionHistoryModal({
                     <button
                       type="button"
                       onClick={() => handleSaveSnapshot()}
-                      className="flex-1 py-1 px-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-xs font-semibold cursor-pointer"
+                      className="flex-1 py-1 px-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs font-semibold cursor-pointer shadow-xs"
                     >
                       Save
                     </button>
                     <button
                       type="button"
                       onClick={() => setShowCreateInput(false)}
-                      className="py-1 px-2.5 bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-xs font-semibold cursor-pointer"
+                      className="py-1 px-2.5 bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300 rounded-lg text-xs font-semibold cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -196,7 +196,7 @@ export default function VersionHistoryModal({
                 <button
                   type="button"
                   onClick={() => setShowCreateInput(true)}
-                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+                  className="w-full flex items-center justify-center gap-1.5 py-2 px-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-orange-500/20 cursor-pointer"
                 >
                   <Plus size={14} />
                   <span>Save Current Snapshot</span>
@@ -207,7 +207,7 @@ export default function VersionHistoryModal({
             {/* Snapshot Items */}
             <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
               {snapshots.length === 0 ? (
-                <div className="p-4 text-center text-xs text-gray-400">
+                <div className="p-4 text-center text-xs text-stone-400">
                   <Clock size={24} className="mx-auto mb-2 opacity-40" />
                   <p>No snapshots yet.</p>
                   <p className="text-[11px] mt-1">Click &quot;Save Current Snapshot&quot; above to create one!</p>
@@ -221,10 +221,10 @@ export default function VersionHistoryModal({
                       onClick={() => setSelectedSnapshotId(snap.id)}
                       className={`p-3 rounded-xl cursor-pointer transition-all border ${
                         isSelected
-                          ? "bg-purple-500/10 border-purple-500/40 text-purple-600 dark:text-purple-300"
+                          ? "bg-orange-500/10 border-orange-500/40 text-orange-700 dark:text-orange-300"
                           : isDark
-                            ? "bg-gray-800/40 border-gray-800/80 hover:bg-gray-800 text-gray-300"
-                            : "bg-white border-gray-200/80 hover:bg-gray-100 text-gray-700"
+                            ? "bg-stone-800/40 border-stone-800/80 hover:bg-stone-800 text-stone-300"
+                            : "bg-white border-stone-200/80 hover:border-orange-200 hover:bg-white text-stone-700"
                       }`}
                     >
                       <div className="flex items-center justify-between mb-1">
@@ -251,7 +251,7 @@ export default function VersionHistoryModal({
           {/* Right: Preview Pane */}
           <div
             className={`flex-1 flex flex-col ${
-              isDark ? "bg-gray-950" : "bg-gray-100/50"
+              isDark ? "bg-[#141210]" : "bg-[#FAF7F2]/40"
             }`}
           >
             {selectedSnapshot ? (
@@ -259,14 +259,14 @@ export default function VersionHistoryModal({
                 {/* Preview Toolbar */}
                 <div
                   className={`flex items-center justify-between px-5 py-3 border-b ${
-                    isDark ? "bg-gray-900/80 border-gray-800" : "bg-white border-gray-200"
+                    isDark ? "bg-stone-900/80 border-stone-800" : "bg-white border-stone-200/80"
                   }`}
                 >
                   <div>
-                    <h4 className="font-bold text-sm text-gray-900 dark:text-white">
+                    <h4 className="font-bold text-sm text-stone-900 dark:text-stone-100">
                       {selectedSnapshot.name}
                     </h4>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-stone-500">
                       Saved by <strong>{selectedSnapshot.author}</strong> on{" "}
                       {formatDate(selectedSnapshot.timestamp)}
                     </p>
@@ -275,7 +275,7 @@ export default function VersionHistoryModal({
                   <button
                     type="button"
                     onClick={handleRestore}
-                    className="flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+                    className="flex items-center gap-1.5 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-orange-500/20 cursor-pointer"
                   >
                     {restoreSuccess ? (
                       <>

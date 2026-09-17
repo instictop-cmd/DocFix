@@ -175,14 +175,14 @@ export default function FindReplaceBar({
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Find in document..."
-              className={`w-full pl-8 pr-16 py-1.5 text-xs rounded-xl border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors ${
+              className={`w-full pl-8 pr-16 py-1.5 text-xs rounded-xl border focus:outline-none focus:ring-2 focus:ring-orange-400/50 transition-colors ${
                 isDark
-                  ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500"
-                  : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400"
+                  ? "bg-stone-800 border-stone-700 text-white placeholder-stone-500"
+                  : "bg-[#FAF7F2] border-stone-200 text-stone-900 placeholder-stone-400"
               }`}
             />
             {/* Match Counter Badge */}
-            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-gray-400 select-none">
+            <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-stone-400 select-none">
               {searchTerm
                 ? matches.length > 0
                   ? `${currentIndex + 1}/${matches.length}`
@@ -197,7 +197,7 @@ export default function FindReplaceBar({
               type="button"
               onClick={handlePrev}
               disabled={matches.length === 0}
-              className="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 disabled:opacity-30 cursor-pointer transition-colors"
+              className="p-1.5 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-800 disabled:opacity-30 cursor-pointer transition-colors text-stone-600 dark:text-stone-300"
               title="Previous match (Shift+Enter)"
             >
               <ChevronUp size={15} />
@@ -206,7 +206,7 @@ export default function FindReplaceBar({
               type="button"
               onClick={handleNext}
               disabled={matches.length === 0}
-              className="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 disabled:opacity-30 cursor-pointer transition-colors"
+              className="p-1.5 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-800 disabled:opacity-30 cursor-pointer transition-colors text-stone-600 dark:text-stone-300"
               title="Next match (Enter)"
             >
               <ChevronDown size={15} />
@@ -216,8 +216,8 @@ export default function FindReplaceBar({
               onClick={() => setIsCaseSensitive(!isCaseSensitive)}
               className={`p-1.5 rounded-lg text-xs font-bold cursor-pointer transition-colors ${
                 isCaseSensitive
-                  ? "bg-blue-600 text-white shadow-xs"
-                  : "hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-400"
+                  ? "bg-orange-500 text-white shadow-xs"
+                  : "hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-400"
               }`}
               title="Match case (Aa)"
             >
@@ -228,8 +228,8 @@ export default function FindReplaceBar({
               onClick={() => setShowReplace(!showReplace)}
               className={`p-1.5 rounded-lg cursor-pointer transition-colors ${
                 showReplace
-                  ? "bg-purple-600 text-white shadow-xs"
-                  : "hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-400"
+                  ? "bg-amber-500 text-white shadow-xs"
+                  : "hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-400"
               }`}
               title="Toggle Replace"
             >
@@ -238,7 +238,7 @@ export default function FindReplaceBar({
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-800 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 cursor-pointer transition-colors"
+              className="p-1.5 rounded-lg hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 cursor-pointer transition-colors"
               title="Close (Esc)"
             >
               <X size={15} />
@@ -248,24 +248,24 @@ export default function FindReplaceBar({
 
         {/* Replace Row (Expandable) */}
         {showReplace && (
-          <div className="flex items-center gap-1.5 pt-1 border-t border-gray-200 dark:border-gray-800 animate-in fade-in duration-100">
+          <div className="flex items-center gap-1.5 pt-1 border-t border-stone-200 dark:border-stone-800 animate-in fade-in duration-100">
             <input
               type="text"
               value={replaceTerm}
               onChange={(e) => setReplaceTerm(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Replace with..."
-              className={`flex-1 px-3 py-1.5 text-xs rounded-xl border focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors ${
+              className={`flex-1 px-3 py-1.5 text-xs rounded-xl border focus:outline-none focus:ring-2 focus:ring-amber-400/50 transition-colors ${
                 isDark
-                  ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500"
-                  : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400"
+                  ? "bg-stone-800 border-stone-700 text-white placeholder-stone-500"
+                  : "bg-[#FAF7F2] border-stone-200 text-stone-900 placeholder-stone-400"
               }`}
             />
             <button
               type="button"
               onClick={handleReplace}
               disabled={matches.length === 0}
-              className="px-2.5 py-1.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-30 text-white rounded-xl text-xs font-semibold cursor-pointer transition-all active:scale-95 shadow-xs"
+              className="px-2.5 py-1.5 bg-amber-500 hover:bg-amber-600 disabled:opacity-30 text-white rounded-xl text-xs font-semibold cursor-pointer transition-all active:scale-95 shadow-xs"
             >
               Replace
             </button>
@@ -273,7 +273,7 @@ export default function FindReplaceBar({
               type="button"
               onClick={handleReplaceAll}
               disabled={matches.length === 0}
-              className="px-2.5 py-1.5 bg-gray-200 dark:bg-gray-800 hover:bg-gray-300 dark:hover:bg-gray-700 disabled:opacity-30 text-gray-700 dark:text-gray-200 rounded-xl text-xs font-semibold cursor-pointer transition-all active:scale-95"
+              className="px-2.5 py-1.5 bg-stone-200 dark:bg-stone-800 hover:bg-stone-300 dark:hover:bg-stone-700 disabled:opacity-30 text-stone-700 dark:text-stone-200 rounded-xl text-xs font-semibold cursor-pointer transition-all active:scale-95"
             >
               All
             </button>

@@ -97,11 +97,11 @@ function ToolbarButton({
       className={`w-7.5 h-7.5 flex items-center justify-center rounded-md transition-all duration-150 cursor-pointer active:scale-90 select-none ${
         isActive
           ? isDark
-            ? "bg-gray-700 text-blue-400 shadow-xs font-semibold"
-            : "bg-white text-blue-600 shadow-xs font-semibold"
+            ? "bg-stone-800 text-orange-400 shadow-xs font-semibold"
+            : "bg-white text-orange-600 shadow-xs font-semibold"
           : isDark
-            ? "text-gray-400 hover:text-gray-100 hover:bg-gray-700/50"
-            : "text-gray-600 hover:text-gray-900 hover:bg-white/60"
+            ? "text-stone-400 hover:text-stone-100 hover:bg-stone-800/50"
+            : "text-stone-600 hover:text-stone-900 hover:bg-white/60"
       } ${disabled ? "opacity-30 cursor-not-allowed" : ""}`}
     >
       {children}
@@ -178,16 +178,16 @@ export default function Toolbar({
   };
 
   const pillContainerClass = isDark
-    ? "flex items-center gap-0.5 p-0.5 rounded-lg bg-gray-800/80 border border-gray-700/60"
-    : "flex items-center gap-0.5 p-0.5 rounded-lg bg-gray-100/90 border border-gray-200/70";
+    ? "flex items-center gap-0.5 p-0.5 rounded-lg bg-stone-800/80 border border-stone-700/60"
+    : "flex items-center gap-0.5 p-0.5 rounded-lg bg-stone-100/90 border border-stone-200/80";
 
   if (isReadOnly) {
     return (
       <div
         className={`flex items-center justify-between px-4 py-2 border-b text-xs font-medium ${
           isDark
-            ? "bg-gray-900 border-gray-800 text-amber-400"
-            : "bg-amber-50 border-amber-200 text-amber-800"
+            ? "bg-stone-900 border-stone-800 text-amber-400"
+            : "bg-amber-50 border-amber-200/80 text-amber-800"
         }`}
       >
         <div className="flex items-center gap-2">
@@ -199,7 +199,7 @@ export default function Toolbar({
             <button
               type="button"
               onClick={onOpenFindReplace}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-md hover:bg-amber-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 cursor-pointer text-xs font-semibold transition-all active:scale-95"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md hover:bg-amber-100/70 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 cursor-pointer text-xs font-semibold transition-all active:scale-95"
             >
               <Search size={13} />
               <span>Find</span>
@@ -209,7 +209,7 @@ export default function Toolbar({
             <button
               type="button"
               onClick={onOpenPolls}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-md hover:bg-amber-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 cursor-pointer text-xs font-semibold transition-all active:scale-95"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md hover:bg-amber-100/70 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 cursor-pointer text-xs font-semibold transition-all active:scale-95"
             >
               <Vote size={13} />
               <span>Polls</span>
@@ -219,7 +219,7 @@ export default function Toolbar({
             <button
               type="button"
               onClick={onOpenHistory}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-md hover:bg-amber-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 cursor-pointer text-xs font-semibold transition-all active:scale-95"
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md hover:bg-amber-100/70 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 cursor-pointer text-xs font-semibold transition-all active:scale-95"
             >
               <History size={13} />
               <span>History</span>
@@ -228,7 +228,7 @@ export default function Toolbar({
           <button
             type="button"
             onClick={onToggleDark}
-            className="p-1.5 rounded-md hover:bg-amber-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 cursor-pointer transition-all active:scale-95"
+            className="p-1.5 rounded-md hover:bg-amber-100/70 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 cursor-pointer transition-all active:scale-95"
             title="Toggle theme"
           >
             {isDark ? <Sun size={15} /> : <Moon size={15} />}
@@ -243,8 +243,8 @@ export default function Toolbar({
       <div
         className={`flex items-center justify-between px-3.5 py-2 border-b transition-colors flex-wrap gap-2 ${
           isDark
-            ? "bg-gray-900/95 border-gray-800/80 text-gray-200"
-            : "bg-white border-gray-200/80 text-gray-800"
+            ? "bg-[#1C1917] border-stone-800/80 text-stone-200"
+            : "bg-white/95 border-stone-200/80 text-stone-800"
         }`}
       >
         <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap">
@@ -253,12 +253,12 @@ export default function Toolbar({
             <button
               type="button"
               onClick={onOpenDocPilot}
-              className="group flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-700 hover:to-pink-700 text-white text-xs font-semibold transition-all shadow-xs hover:shadow-purple-500/20 hover:shadow-md active:scale-95 cursor-pointer"
+              className="group flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-orange-500 via-amber-500 to-rose-400 hover:from-orange-600 hover:to-rose-500 text-white text-xs font-semibold transition-all shadow-sm shadow-orange-500/15 active:scale-95 cursor-pointer"
               title="DocPilot AI Copilot (Cmd+J)"
             >
-              <Sparkles size={13} className="animate-pulse text-purple-200" />
+              <Sparkles size={13} className="animate-pulse text-amber-100" />
               <span>DocPilot</span>
-              <kbd className="hidden sm:inline-block px-1.5 py-0.2 text-[9px] font-semibold bg-white/20 rounded text-white tracking-wider">
+              <kbd className="hidden sm:inline-block px-1.5 py-0.2 text-[9px] font-semibold bg-white/25 rounded text-white tracking-wider">
                 ⌘J
               </kbd>
             </button>
@@ -508,10 +508,10 @@ export default function Toolbar({
 
               {showTableMenu && (
                 <div
-                  className={`absolute left-0 mt-1.5 w-48 rounded-xl shadow-2xl border p-1 z-50 text-xs animate-in fade-in zoom-in-95 duration-100 ${
+                  className={`absolute left-0 mt-1.5 w-48 rounded-xl shadow-xl border p-1 z-50 text-xs animate-in fade-in zoom-in-95 duration-100 ${
                     isDark
-                      ? "bg-gray-900 border-gray-700 text-gray-200"
-                      : "bg-white border-gray-200 text-gray-700"
+                      ? "bg-stone-900 border-stone-700 text-stone-200"
+                      : "bg-white border-stone-200 text-stone-700"
                   }`}
                 >
                   <button
@@ -524,7 +524,7 @@ export default function Toolbar({
                         .run();
                       setShowTableMenu(false);
                     }}
-                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-blue-600 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
+                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-orange-500 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     <PlusSquare size={13} /> Insert 3x3 Table
                   </button>
@@ -535,7 +535,7 @@ export default function Toolbar({
                       setShowTableMenu(false);
                     }}
                     disabled={!editor.can().addRowAfter()}
-                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-blue-600 hover:text-white disabled:opacity-30 flex items-center gap-2 cursor-pointer transition-colors"
+                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-orange-500 hover:text-white disabled:opacity-30 flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     ➕ Add Row Below
                   </button>
@@ -546,7 +546,7 @@ export default function Toolbar({
                       setShowTableMenu(false);
                     }}
                     disabled={!editor.can().addColumnAfter()}
-                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-blue-600 hover:text-white disabled:opacity-30 flex items-center gap-2 cursor-pointer transition-colors"
+                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-orange-500 hover:text-white disabled:opacity-30 flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     ➕ Add Column Right
                   </button>
@@ -557,7 +557,7 @@ export default function Toolbar({
                       setShowTableMenu(false);
                     }}
                     disabled={!editor.can().deleteRow()}
-                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-red-600 hover:text-white disabled:opacity-30 flex items-center gap-2 cursor-pointer transition-colors"
+                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-red-500 hover:text-white disabled:opacity-30 flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     ➖ Delete Row
                   </button>
@@ -568,11 +568,11 @@ export default function Toolbar({
                       setShowTableMenu(false);
                     }}
                     disabled={!editor.can().deleteColumn()}
-                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-red-600 hover:text-white disabled:opacity-30 flex items-center gap-2 cursor-pointer transition-colors"
+                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-red-500 hover:text-white disabled:opacity-30 flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     ➖ Delete Column
                   </button>
-                  <div className="border-t my-1 border-gray-200 dark:border-gray-800" />
+                  <div className="border-t my-1 border-stone-200 dark:border-stone-800" />
                   <button
                     type="button"
                     onClick={() => {
@@ -580,7 +580,7 @@ export default function Toolbar({
                       setShowTableMenu(false);
                     }}
                     disabled={!editor.can().deleteTable()}
-                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-red-600 hover:text-white text-red-500 disabled:opacity-30 flex items-center gap-2 cursor-pointer font-medium transition-colors"
+                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-red-500 hover:text-white text-red-500 disabled:opacity-30 flex items-center gap-2 cursor-pointer font-medium transition-colors"
                   >
                     <Trash2 size={13} /> Delete Table
                   </button>
@@ -639,11 +639,11 @@ export default function Toolbar({
                 className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-semibold transition-all cursor-pointer active:scale-95 ${
                   isPagesOpen
                     ? isDark
-                      ? "bg-gray-700 text-blue-400 shadow-xs"
-                      : "bg-white text-blue-600 shadow-xs"
+                      ? "bg-stone-700 text-orange-400 shadow-xs"
+                      : "bg-white text-orange-600 shadow-xs"
                     : isDark
-                      ? "text-gray-400 hover:text-gray-100 hover:bg-gray-700/60"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-white"
+                      ? "text-stone-400 hover:text-stone-100 hover:bg-stone-700/60"
+                      : "text-stone-600 hover:text-stone-900 hover:bg-white"
                 }`}
                 title="Toggle Left Pages Panel (Thumbnails & Add Page)"
               >
@@ -657,12 +657,12 @@ export default function Toolbar({
               <button
                 type="button"
                 onClick={onOpenFindReplace}
-                className="flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-semibold transition-all cursor-pointer active:scale-95 text-blue-600 dark:text-blue-400 hover:bg-white dark:hover:bg-gray-700"
+                className="flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-semibold transition-all cursor-pointer active:scale-95 text-stone-700 dark:text-stone-300 hover:text-orange-600 hover:bg-white dark:hover:bg-stone-700"
                 title="Find & Replace (Cmd+F / Ctrl+F)"
               >
                 <Search size={13} />
                 <span className="hidden xl:inline">Find</span>
-                <kbd className="hidden 2xl:inline-block px-1 py-0.2 text-[8px] font-semibold bg-gray-200 dark:bg-gray-700 rounded text-gray-600 dark:text-gray-300">
+                <kbd className="hidden 2xl:inline-block px-1 py-0.2 text-[8px] font-semibold bg-stone-200 dark:bg-stone-700 rounded text-stone-600 dark:text-stone-300">
                   ⌘F
                 </kbd>
               </button>
@@ -676,11 +676,11 @@ export default function Toolbar({
                 className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-semibold transition-all cursor-pointer active:scale-95 ${
                   isPaginated
                     ? isDark
-                      ? "bg-gray-700 text-purple-300 shadow-xs"
-                      : "bg-white text-purple-700 shadow-xs"
+                      ? "bg-stone-700 text-orange-400 shadow-xs"
+                      : "bg-white text-orange-600 shadow-xs"
                     : isDark
-                      ? "text-gray-400 hover:text-gray-100 hover:bg-gray-700/60"
-                      : "text-gray-600 hover:text-gray-900 hover:bg-white"
+                      ? "text-stone-400 hover:text-stone-100 hover:bg-stone-700/60"
+                      : "text-stone-600 hover:text-stone-900 hover:bg-white"
                 }`}
                 title={isPaginated ? "Switch to Pageless continuous view" : "Switch to A4 Paginated sheets"}
               >
@@ -697,7 +697,7 @@ export default function Toolbar({
               <button
                 type="button"
                 onClick={onOpenPolls}
-                className="flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-semibold transition-all cursor-pointer active:scale-95 text-amber-600 dark:text-amber-400 hover:bg-white dark:hover:bg-gray-700"
+                className="flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-semibold transition-all cursor-pointer active:scale-95 text-stone-700 dark:text-stone-300 hover:text-amber-600 hover:bg-white dark:hover:bg-stone-700"
                 title="Real-Time Collaborative Polls"
               >
                 <Vote size={14} />
@@ -710,7 +710,7 @@ export default function Toolbar({
               <button
                 type="button"
                 onClick={onOpenHistory}
-                className="flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-semibold transition-all cursor-pointer active:scale-95 text-purple-600 dark:text-purple-300 hover:bg-white dark:hover:bg-gray-700"
+                className="flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-semibold transition-all cursor-pointer active:scale-95 text-stone-700 dark:text-stone-300 hover:text-orange-600 hover:bg-white dark:hover:bg-stone-700"
                 title="View Version History & Snapshots"
               >
                 <History size={14} />
@@ -726,11 +726,11 @@ export default function Toolbar({
                 className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-semibold transition-all cursor-pointer active:scale-95 ${
                   isChatOpen
                     ? isDark
-                      ? "bg-gray-700 text-blue-400 shadow-xs"
-                      : "bg-white text-blue-600 shadow-xs"
+                      ? "bg-stone-700 text-orange-400 shadow-xs"
+                      : "bg-white text-orange-600 shadow-xs"
                     : isDark
-                      ? "text-gray-300 hover:bg-gray-700/60 hover:text-white"
-                      : "text-gray-700 hover:bg-white hover:text-gray-900"
+                      ? "text-stone-300 hover:bg-stone-700/60 hover:text-white"
+                      : "text-stone-700 hover:bg-white hover:text-stone-900"
                 }`}
                 title="Toggle Live Team Chat"
               >
@@ -747,7 +747,7 @@ export default function Toolbar({
               <button
                 type="button"
                 onClick={() => setShowExportMenu(!showExportMenu)}
-                className="w-7.5 h-7.5 flex items-center justify-center rounded-md transition-all duration-150 cursor-pointer active:scale-90 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-700"
+                className="w-7.5 h-7.5 flex items-center justify-center rounded-md transition-all duration-150 cursor-pointer active:scale-90 text-stone-600 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-700 hover:text-orange-600"
                 title="Export Document (Markdown, HTML, PDF)"
               >
                 <Download size={14} />
@@ -757,12 +757,12 @@ export default function Toolbar({
                 <div
                   className={`absolute right-0 mt-1.5 w-52 rounded-xl shadow-xl border p-2 z-50 text-xs animate-in fade-in zoom-in-95 duration-100 ${
                     isDark
-                      ? "bg-gray-900 border-gray-700 text-gray-200"
-                      : "bg-white border-gray-200 text-gray-700"
+                      ? "bg-stone-900 border-stone-700 text-stone-200"
+                      : "bg-white border-stone-200 text-stone-700"
                   }`}
                 >
-                  <div className="mb-2 pb-1.5 border-b border-gray-200 dark:border-gray-800">
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-400 mb-1">
+                  <div className="mb-2 pb-1.5 border-b border-stone-200 dark:border-stone-800">
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-stone-400 mb-1">
                       Pages to Export
                     </label>
                     <input
@@ -770,13 +770,13 @@ export default function Toolbar({
                       value={exportRangeInput}
                       onChange={(e) => setExportRangeInput(e.target.value)}
                       placeholder='e.g. "all", "1", "1-2"'
-                      className={`w-full px-2 py-1 text-xs rounded-lg border focus:outline-none focus:ring-1 focus:ring-blue-500 ${
+                      className={`w-full px-2 py-1 text-xs rounded-lg border focus:outline-none focus:ring-1 focus:ring-orange-400/50 ${
                         isDark
-                          ? "bg-gray-800 border-gray-700 text-white"
-                          : "bg-gray-50 border-gray-200 text-gray-900"
+                          ? "bg-stone-800 border-stone-700 text-white"
+                          : "bg-stone-50 border-stone-200 text-stone-900"
                       }`}
                     />
-                    <span className="text-[9px] text-gray-400 mt-0.5 block">
+                    <span className="text-[9px] text-stone-400 mt-0.5 block">
                       Type <strong>all</strong>, or <strong>1</strong>, <strong>1-3</strong>
                     </span>
                   </div>
@@ -784,21 +784,21 @@ export default function Toolbar({
                   <button
                     type="button"
                     onClick={() => handleExport("md")}
-                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-blue-600 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
+                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-orange-500 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     <FileDown size={13} /> Markdown (.md)
                   </button>
                   <button
                     type="button"
                     onClick={() => handleExport("html")}
-                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-blue-600 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
+                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-orange-500 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     <FileDown size={13} /> HTML (.html)
                   </button>
                   <button
                     type="button"
                     onClick={() => handleExport("pdf")}
-                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-blue-600 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
+                    className="w-full px-2.5 py-1.5 rounded-lg text-left hover:bg-orange-500 hover:text-white flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     <FileDown size={13} /> Print / Save as PDF
                   </button>

@@ -85,14 +85,14 @@ export default function ImageModal({
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-400 text-white flex items-center justify-center font-bold text-base shadow-sm">
               <ImageIcon size={18} />
             </div>
             <div>
-              <h3 className="font-bold text-base text-gray-900 dark:text-white leading-tight">
+              <h3 className="font-bold text-base text-stone-900 dark:text-stone-100 leading-tight">
                 Insert Image
               </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-stone-500 dark:text-stone-400">
                 Upload from device or choose a preset photo
               </p>
             </div>
@@ -100,21 +100,21 @@ export default function ImageModal({
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg cursor-pointer"
+            className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1.5 rounded-lg cursor-pointer transition-colors"
           >
             <X size={18} />
           </button>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex rounded-xl p-1 bg-gray-100 dark:bg-gray-800 mb-5">
+        <div className="flex rounded-xl p-1 bg-stone-100 dark:bg-stone-800 mb-5">
           <button
             type="button"
             onClick={() => setActiveTab("upload")}
             className={`flex-1 py-1.5 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               activeTab === "upload"
-                ? "bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-xs"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-900"
+                ? "bg-white dark:bg-stone-900 text-orange-600 dark:text-orange-400 shadow-xs"
+                : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
             }`}
           >
             <Upload size={13} />
@@ -125,8 +125,8 @@ export default function ImageModal({
             onClick={() => setActiveTab("presets")}
             className={`flex-1 py-1.5 text-xs font-semibold rounded-lg flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               activeTab === "presets"
-                ? "bg-white dark:bg-gray-900 text-blue-600 dark:text-blue-400 shadow-xs"
-                : "text-gray-600 dark:text-gray-400 hover:text-gray-900"
+                ? "bg-white dark:bg-stone-900 text-orange-600 dark:text-orange-400 shadow-xs"
+                : "text-stone-600 dark:text-stone-400 hover:text-stone-900"
             }`}
           >
             <Sparkles size={13} />
@@ -159,10 +159,10 @@ export default function ImageModal({
               onClick={() => fileInputRef.current?.click()}
               className={`border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-2 ${
                 isDragging
-                  ? "border-blue-500 bg-blue-500/10"
+                  ? "border-orange-500 bg-orange-500/10"
                   : isDark
-                    ? "border-gray-700 bg-gray-800/40 hover:bg-gray-800 hover:border-gray-600"
-                    : "border-gray-300 bg-gray-50/70 hover:bg-gray-100/70 hover:border-blue-400"
+                    ? "border-stone-700 bg-stone-800/40 hover:bg-stone-800 hover:border-stone-600"
+                    : "border-stone-300 bg-[#FAF7F2] hover:bg-stone-100/70 hover:border-orange-400"
               }`}
             >
               {previewUrl ? (
@@ -173,21 +173,21 @@ export default function ImageModal({
                     alt="Preview"
                     className="w-full h-44 object-contain rounded-lg"
                   />
-                  <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                    <span className="text-white text-xs font-semibold px-3 py-1.5 bg-blue-600 rounded-lg shadow-md">
+                  <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                    <span className="text-white text-xs font-semibold px-3 py-1.5 bg-orange-500 rounded-lg shadow-md">
                       Click to choose another image
                     </span>
                   </div>
                 </div>
               ) : (
                 <>
-                  <div className="w-12 h-12 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center mb-1">
+                  <div className="w-12 h-12 rounded-full bg-orange-500/10 text-orange-600 flex items-center justify-center mb-1">
                     <Upload size={22} />
                   </div>
-                  <p className="text-xs font-bold text-gray-800 dark:text-gray-200">
+                  <p className="text-xs font-bold text-stone-800 dark:text-stone-200">
                     Click to browse or drag & drop image here
                   </p>
-                  <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                  <p className="text-[11px] text-stone-500 dark:text-stone-400">
                     Supports PNG, JPG, GIF, WebP, SVG (Auto-compressed)
                   </p>
                 </>
@@ -209,10 +209,10 @@ export default function ImageModal({
                   }}
                   className={`border rounded-xl p-2 cursor-pointer transition-all ${
                     isSelected
-                      ? "border-blue-500 ring-2 ring-blue-500/30 bg-blue-50/30 dark:bg-blue-900/20"
+                      ? "border-orange-500 ring-2 ring-orange-500/30 bg-orange-50/30 dark:bg-orange-950/20"
                       : isDark
-                        ? "border-gray-800 hover:border-gray-700 bg-gray-800/40"
-                        : "border-gray-200 hover:border-gray-300 bg-gray-50/50"
+                        ? "border-stone-800 hover:border-stone-700 bg-stone-800/40"
+                        : "border-stone-200 hover:border-orange-300 bg-[#FAF7F2]"
                   }`}
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -221,7 +221,7 @@ export default function ImageModal({
                     alt={preset.name}
                     className="w-full h-20 object-cover rounded-lg mb-1.5"
                   />
-                  <p className="text-[11px] font-semibold text-gray-800 dark:text-gray-200 truncate">
+                  <p className="text-[11px] font-semibold text-stone-800 dark:text-stone-200 truncate">
                     {preset.name}
                   </p>
                 </div>
@@ -231,11 +231,11 @@ export default function ImageModal({
         )}
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-end gap-2.5 pt-4 mt-5 border-t border-gray-100 dark:border-gray-800">
+        <div className="flex items-center justify-end gap-2.5 pt-4 mt-5 border-t border-stone-100 dark:border-stone-800">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 text-xs font-semibold rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+            className="px-4 py-2 text-xs font-semibold rounded-xl text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
           >
             Cancel
           </button>
@@ -243,10 +243,10 @@ export default function ImageModal({
             type="button"
             disabled={!previewUrl}
             onClick={handleConfirmInsert}
-            className={`flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer ${
+            className={`flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer ${
               previewUrl
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "bg-gray-300 dark:bg-gray-800 text-gray-500 cursor-not-allowed"
+                ? "bg-orange-500 hover:bg-orange-600 text-white shadow-orange-500/20"
+                : "bg-stone-300 dark:bg-stone-800 text-stone-500 cursor-not-allowed"
             }`}
           >
             <Check size={14} />

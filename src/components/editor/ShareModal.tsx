@@ -88,14 +88,14 @@ export default function ShareModal({
         {/* Modal Header */}
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-base shadow-sm">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-400 text-white flex items-center justify-center font-bold text-base shadow-sm">
               📄
             </div>
             <div>
-              <h3 className="font-bold text-base text-gray-900 dark:text-white leading-tight">
+              <h3 className="font-bold text-base text-stone-900 dark:text-stone-100 leading-tight">
                 Share &quot;{docName}&quot;
               </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
+              <p className="text-xs text-stone-500 dark:text-stone-400">
                 Invite collaborators directly via Gmail or shareable link
               </p>
             </div>
@@ -103,7 +103,7 @@ export default function ShareModal({
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1.5 rounded-lg cursor-pointer"
+            className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1.5 rounded-lg cursor-pointer transition-colors"
           >
             <X size={18} />
           </button>
@@ -111,24 +111,24 @@ export default function ShareModal({
 
         {/* 1. Gmail Invitation Section */}
         <form onSubmit={handleOpenGmail} className="mb-5">
-          <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
+          <label className="block text-xs font-bold text-stone-500 dark:text-stone-400 uppercase tracking-wider mb-2">
             Send Invitation via Gmail
           </label>
           <div className="space-y-2.5">
             <div className="relative">
               <Mail
                 size={16}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400"
               />
               <input
                 type="email"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
                 placeholder="colleague@gmail.com (or leave empty to open compose)..."
-                className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-orange-400/50 ${
                   isDark
-                    ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500"
-                    : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400"
+                    ? "bg-stone-800 border-stone-700 text-white placeholder-stone-500"
+                    : "bg-[#FAF7F2] border-stone-200 text-stone-900 placeholder-stone-400"
                 }`}
               />
             </div>
@@ -136,7 +136,7 @@ export default function ShareModal({
             {/* Direct Gmail Web Compose Button */}
             <button
               type="submit"
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-orange-500/20 cursor-pointer"
               title="Open directly in Gmail web composer"
             >
               <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
@@ -149,32 +149,32 @@ export default function ShareModal({
         </form>
 
         {statusMessage && (
-          <div className="mb-4 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-500 text-xs font-medium flex items-center gap-1.5 animate-in fade-in duration-150">
+          <div className="mb-4 px-3 py-1.5 rounded-lg bg-orange-500/10 text-orange-600 text-xs font-medium flex items-center gap-1.5 animate-in fade-in duration-150">
             <Check size={13} />
             <span>{statusMessage}</span>
           </div>
         )}
 
         <div className="relative flex py-1.5 items-center mb-4">
-          <div className="flex-grow border-t border-gray-200 dark:border-gray-800" />
-          <span className="flex-shrink mx-3 text-xs text-gray-400 font-medium">
+          <div className="flex-grow border-t border-stone-200 dark:border-stone-800" />
+          <span className="flex-shrink mx-3 text-xs text-stone-400 font-medium">
             Permission & Access
           </span>
-          <div className="flex-grow border-t border-gray-200 dark:border-gray-800" />
+          <div className="flex-grow border-t border-stone-200 dark:border-stone-800" />
         </div>
 
         {/* 2. Permission Selector (Editor vs Viewer) */}
         <div className="space-y-3 mb-6">
-          <div className="flex items-center justify-between p-3.5 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/40">
+          <div className="flex items-center justify-between p-3.5 rounded-xl border border-stone-200/80 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-800/40">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-orange-500/10 text-orange-600 flex items-center justify-center">
                 <Globe size={16} />
               </div>
               <div>
-                <p className="text-xs font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-xs font-bold text-stone-900 dark:text-stone-100">
                   Anyone with the link
                 </p>
-                <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                <p className="text-[11px] text-stone-500 dark:text-stone-400">
                   Choose access permission for collaborators
                 </p>
               </div>
@@ -183,10 +183,10 @@ export default function ShareModal({
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as "editor" | "viewer")}
-              className={`text-xs font-semibold px-3 py-1.5 rounded-lg border cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              className={`text-xs font-semibold px-3 py-1.5 rounded-lg border cursor-pointer focus:outline-none focus:ring-2 focus:ring-orange-400/50 ${
                 isDark
-                  ? "bg-gray-800 border-gray-700 text-gray-200"
-                  : "bg-white border-gray-200 text-gray-800"
+                  ? "bg-stone-800 border-stone-700 text-stone-200"
+                  : "bg-white border-stone-200 text-stone-800"
               }`}
             >
               <option value="editor">✏️ Editor (Can edit)</option>
@@ -196,16 +196,16 @@ export default function ShareModal({
         </div>
 
         {/* 3. Copy Link Footer */}
-        <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800 gap-3">
+        <div className="flex items-center justify-between pt-2 border-t border-stone-100 dark:border-stone-800 gap-3">
           <button
             type="button"
             onClick={handleCopy}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
               copied
-                ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
+                ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
                 : isDark
-                  ? "bg-gray-800 hover:bg-gray-700 text-gray-200 border-gray-700"
-                  : "bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-200"
+                  ? "bg-stone-800 hover:bg-stone-700 text-stone-200 border-stone-700"
+                  : "bg-stone-100 hover:bg-stone-200 text-stone-800 border-stone-200"
             }`}
           >
             {copied ? <Check size={15} /> : <Copy size={15} />}
@@ -215,7 +215,7 @@ export default function ShareModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+            className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition-all shadow-sm shadow-orange-500/20 cursor-pointer"
           >
             Done
           </button>
