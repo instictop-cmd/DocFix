@@ -55,10 +55,17 @@ export default function ShortcutsModal({
 
   const SHORTCUT_GROUPS: ShortcutCategory[] = [
     {
-      category: "AI & Actions",
+      category: "DocPilot AI",
       icon: <Sparkles size={14} className="text-purple-500" />,
       items: [
         { name: "DocPilot AI Copilot", keys: ["⌘", "J"] },
+        { name: "Summarize / Polish / Action Items", keys: ["⌘", "J"] },
+      ],
+    },
+    {
+      category: "Document & Tools",
+      icon: <Save size={14} className="text-indigo-500" />,
+      items: [
         { name: "Save Checkpoint Snapshot", keys: ["⌘", "S"] },
         { name: "Find & Replace in Doc", keys: ["⌘", "F"] },
         { name: "Shortcuts Cheat Sheet", keys: ["⌘", "/"] },
