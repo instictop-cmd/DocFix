@@ -6,20 +6,34 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "server": "node server/server.mjs",
+    "dev:collab": "node server/server.mjs & next dev"
   },
   "dependencies": {
+    "@tiptap/extension-collaboration": "^3.31.3",
+    "@tiptap/extension-collaboration-caret": "^3.31.3",
+    "@tiptap/extension-underline": "^3.31.3",
     "@tiptap/react": "^3.31.3",
     "@tiptap/starter-kit": "^3.31.3",
+    "@tiptap/y-tiptap": "^3.0.9",
+    "lucide-react": "^1.47.0",
     "next": "16.3.5",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "uuid": "^14.0.2",
+    "ws": "^8.21.3",
+    "y-indexeddb": "^9.0.12",
+    "y-websocket": "^3.1.0",
+    "yjs": "^13.6.32"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/uuid": "^10.0.0",
+    "@types/ws": "^8.18.1",
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.3.5",
