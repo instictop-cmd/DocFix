@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DocFix — Hackathon Presentation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #090d16;
+      color: #f1f5f9;
+      overflow: hidden;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .slide {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s ease-in-out;
+    }
+    .slide.active {
+      display: flex;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body class="h-screen w-screen flex flex-col justify-between selection:bg-indigo-500 selection:text-white">
+
+  <!-- Top Progress Bar -->
+  <header class="px-8 py-5 flex items-center justify-between border-b border-slate-800/80 bg-slate-950/40 backdrop-blur-md">
+    <div class="flex items-center gap-2.5">
+      <span class="text-2xl">📄</span>
+      <span class="text-xl font-extrabold tracking-tight text-indigo-400">DocFix</span>
+      <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800/60 font-medium ml-2">
+        SYNORA Hackathon Deck
+      </span>
+    </div>
+    <div class="flex items-center gap-4 text-xs text-slate-400">
+      <span id="slideCounter" class="mono font-semibold text-slate-300">Slide 1 of 6</span>
+      <div class="flex items-center gap-1.5">
+        <button onclick="prevSlide()" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition-colors cursor-pointer">
+          ◀
+        </button>
+        <button onclick="nextSlide()" class="p-2 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 transition-colors cursor-pointer">
+          ▶
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Presentation Viewport -->
+  <main class="flex-1 flex items-center justify-center p-8 sm:p-12 relative overflow-hidden">
+
+    <!-- SLIDE 1: TITLE -->
+    <div class="slide active flex-col items-center justify-center text-center max-w-4xl mx-auto space-y-6">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold">
+        <span>🏆 SYNORA Hackathon · Full Stack Engineering</span>
+      </div>
+      <h1 class="text-5xl sm:text-7xl font-extrabold tracking-tight text-white leading-tight">
+        Doc<span class="text-indigo-400">Fix</span>
+      </h1>
+      <p class="text-lg sm:text-xl text-slate-400 max-w-2xl font-medium leading-relaxed">
+        A high-performance, fault-tolerant Google Docs-style real-time collaborative document engine powered by CRDTs.
+      </p>
+      <div class="grid grid-cols-3 gap-4 pt-6 max-w-lg mx-auto w-full text-left">
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80">
+          <p class="text-[10px] text-slate-500 font-bold uppercase">Algorithm</p>
+          <p class="text-sm font-semibold text-indigo-300 mono">Yjs YATA CRDT</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80">
+          <p class="text-[10px] text-slate-500 font-bold uppercase">Consistency</p>
+          <p class="text-sm font-semibold text-emerald-400 mono">Zero LWW Flaws</p>
+        </div>
+        <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800/80">
+          <p class="text-[10px] text-slate-500 font-bold uppercase">Latency</p>
+          <p class="text-sm font-semibold text-cyan-300 mono">&lt; 10ms Sync</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: THE PROBLEM -->
+    <div class="slide flex-col justify-center max-w-4xl mx-auto space-y-6 w-full">
+      <span class="text-xs font-bold text-rose-400 uppercase tracking-widest">The Core Challenge</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+        Why Collaborative Editing is Hard
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-2">
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
+          <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center font-bold text-lg">⚠️</div>
+          <h3 class="font-bold text-white text-base">Race Conditions</h3>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            When User A and User B type at position 10 concurrently, network latency causes edits to arrive out of order.
+          </p>
+        </div>
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center font-bold text-lg">🚫</div>
+          <h3 class="font-bold text-white text-base">Last-Write-Wins Fails</h3>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            Traditional databases pick whichever edit arrived last and overwrite the other, causing permanent data loss.
+          </p>
+        </div>
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
+          <div class="w-10 h-10 rounded-xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center font-bold text-lg">🌐</div>
+          <h3 class="font-bold text-white text-base">Unreliable Networks</h3>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            Network partitions and high latency break traditional sync models. Offline edits must reconcile smoothly upon reconnect.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: ARCHITECTURE & CRDT -->
+    <div class="slide flex-col justify-center max-w-4xl mx-auto space-y-6 w-full">
+      <span class="text-xs font-bold text-indigo-400 uppercase tracking-widest">The Engine Architecture</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+        Conflict-Free Mathematical Convergence
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
+          <div class="flex items-center gap-2 text-indigo-400 font-bold text-sm">
+            <span>🧬</span> <span>Yjs YATA Algorithm</span>
+          </div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            Every character insertion is assigned a unique client ID and logical Lamport clock. Characters are linked as items in a doubly linked list, guaranteeing non-interleaving text merging without locks or master servers.
+          </p>
+        </div>
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
+          <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm">
+            <span>⚡</span> <span>Binary WebSocket Synchronization</span>
+          </div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            Mutations are serialized into ultra-compact binary byte buffers using lib0 variable-length encoding (average packet size &lt; 80 bytes), achieving sub-10ms propagation.
+          </p>
+        </div>
+      </div>
+      <div class="p-4 rounded-xl bg-indigo-950/40 border border-indigo-900/50 flex items-center justify-between text-xs text-indigo-300">
+        <span>✨ <strong>Result:</strong> Zero race conditions, mathematical convergence, and zero data loss.</span>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: DUAL-TIER PERSISTENCE -->
+    <div class="slide flex-col justify-center max-w-4xl mx-auto space-y-6 w-full">
+      <span class="text-xs font-bold text-emerald-400 uppercase tracking-widest">Fault Tolerance & Resilience</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+        Dual-Tier Offline Persistence
+      </h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2">
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
+          <div class="flex items-center gap-2 text-blue-400 font-bold text-sm">
+            <span>📱</span> <span>Tier 1: Client-Side IndexedDB</span>
+          </div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            Integrated y-indexeddb saves every keystroke locally in the browser. Users can edit while completely disconnected, close the tab, and resume offline without data loss.
+          </p>
+        </div>
+        <div class="p-6 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-3">
+          <div class="flex items-center gap-2 text-purple-400 font-bold text-sm">
+            <span>💾</span> <span>Tier 2: Server-Side Disk Snapshots</span>
+          </div>
+          <p class="text-slate-400 text-xs leading-relaxed">
+            The Node.js collaboration server captures binary CRDT state updates into persistent .yjs files in dbDir/. Documents survive complete backend reboots.
+          </p>
+        </div>
+      </div>
+      <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-400">
+        🔄 <strong>Reconnection Protocol:</strong> Exchanges state vectors, transmits missing delta updates only, and reconciles state automatically.
+      </div>
+    </div>
+
+    <!-- SLIDE 5: JUDGE FEATURES & TELEMETRY -->
+    <div class="slide flex-col justify-center max-w-4xl mx-auto space-y-6 w-full">
+      <span class="text-xs font-bold text-cyan-400 uppercase tracking-widest">Distributed Systems Telemetry</span>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+        The CRDT Diagnostics & Chaos Suite
+      </h2>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-center space-y-2">
+          <span class="text-2xl">🔐</span>
+          <h4 class="font-bold text-white text-xs">SHA-256 State Hash</h4>
+          <p class="text-[11px] text-slate-400">Cryptographic proof of 100% convergence across clients</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-center space-y-2">
+          <span class="text-2xl">📊</span>
+          <h4 class="font-bold text-white text-xs">Memory Profiler</h4>
+          <p class="text-[11px] text-slate-400">Measures serialized CRDT byte footprint in real-time</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-center space-y-2">
+          <span class="text-2xl">⚡</span>
+          <h4 class="font-bold text-white text-xs">500ms Chaos Lag</h4>
+          <p class="text-[11px] text-slate-400">Injected latency simulator to stress-test slow networks</p>
+        </div>
+        <div class="p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-center space-y-2">
+          <span class="text-2xl">🎯</span>
+          <h4 class="font-bold text-white text-xs">Follow Mode</h4>
+          <p class="text-[11px] text-slate-400">Live colored carets + 1-click viewport tracking</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: SUMMARY & DEMO -->
+    <div class="slide flex-col items-center justify-center text-center max-w-3xl mx-auto space-y-6">
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-semibold">
+        <span>🎬 Live Judge Demo Runbook</span>
+      </div>
+      <h2 class="text-4xl sm:text-5xl font-extrabold text-white tracking-tight">
+        Let's See DocFix in Action
+      </h2>
+      <div class="p-6 rounded-2xl bg-slate-900/90 border border-slate-800 max-w-xl text-left space-y-3.5 text-xs text-slate-300 w-full">
+        <div class="flex items-start gap-3">
+          <span class="px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 font-bold mono">1</span>
+          <span><strong>Simultaneous Editing:</strong> Alice and Bob typing concurrently with live colored carets.</span>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 font-bold mono">2</span>
+          <span><strong>CRDT Telemetry:</strong> Verifying identical SHA-256 state consistency hashes.</span>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 font-bold mono">3</span>
+          <span><strong>Offline Partition & Reconnect:</strong> Concurrent offline typing merging with zero data loss.</span>
+        </div>
+      </div>
+      <p class="text-sm font-semibold text-slate-400">
+        Ready for Judge Evaluation & Q&A
+      </p>
+    </div>
+
+  </main>
+
+  <!-- Bottom Navigation -->
+  <footer class="px-8 py-4 flex items-center justify-between border-t border-slate-800/80 bg-slate-950/40 text-xs text-slate-500">
+    <span>Use <kbd class="px-1.5 py-0.5 bg-slate-900 border border-slate-700 rounded text-slate-300 font-mono">←</kbd> <kbd class="px-1.5 py-0.5 bg-slate-900 border border-slate-700 rounded text-slate-300 font-mono">→</kbd> or buttons to navigate</span>
+    <span class="font-medium text-slate-400">DocFix · 2026</span>
+  </footer>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const counter = document.getElementById('slideCounter');
+
+    function updateSlide() {
+      slides.forEach((s, idx) => {
+        s.classList.toggle('active', idx === currentSlide);
+      });
+      counter.textContent = `Slide ${currentSlide + 1} of ${slides.length}`;
+    }
+
+    function nextSlide() {
+      if (currentSlide < slides.length - 1) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft') {
+        prevSlide();
+      }
+    });
+  </script>
+</body>
+</html>
