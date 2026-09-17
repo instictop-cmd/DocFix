@@ -9,7 +9,7 @@ import Underline from "@tiptap/extension-underline";
 import * as Y from "yjs";
 import { WebsocketProvider } from "y-websocket";
 import { IndexeddbPersistence } from "y-indexeddb";
-import { useEffect, useMemo, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Toolbar from "./Toolbar";
 import OnlineUsers from "../presence/OnlineUsers";
 import DiagnosticsHUD from "../diagnostics/DiagnosticsHUD";
@@ -52,6 +52,87 @@ export default function CollaborativeEditor({
   userName,
   userRole = "editor",
 }: CollaborativeEditorProps) {
+  const [collab, setCollab] = useState<{
+    ydoc: Y.Doc;
+    wsProvider: WebsocketProvider;
+    userColor: string;
+  } | null>(null);
+
+  // Robust lifecycle for React 18/19 StrictMode & Fast Refresh
+  useEffect(() => {
+    const doc = new Y.Doc();
+    const color = getRandomColor();
+
+    // Connect to WebSocket server
+    const provider = new WebsocketProvider(
+      "ws://localhost:1234",
+      documentId,
+      doc
+    );
+
+    // IndexedDB offline persistence
+    const idb = new IndexeddbPersistence(documentId, doc);
+
+    // Broadcast initial awareness username & color
+    provider.awareness.setLocalStateField("user", {
+      name: userName,
+      color: color,
+    });
+
+    setCollab({
+      ydoc: doc,
+      wsProvider: provider,
+      userColor: color,
+    });
+
+    return () => {
+      provider.destroy();
+      idb.destroy();
+      doc.destroy();
+      setCollab(null);
+    };
+  }, [documentId, userName]);
+
+  if (!collab) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-slate-900 text-slate-300">
+        <div className="flex items-center gap-3">
+          <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+          <span className="font-medium text-sm">Connecting to DocFix CRDT Engine...</span>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <EditorSurface
+      documentId={documentId}
+      userName={userName}
+      userRole={userRole}
+      ydoc={collab.ydoc}
+      wsProvider={collab.wsProvider}
+      userColor={collab.userColor}
+    />
+  );
+}
+
+interface EditorSurfaceProps {
+  documentId: string;
+  userName: string;
+  userRole: "editor" | "viewer";
+  ydoc: Y.Doc;
+  wsProvider: WebsocketProvider;
+  userColor: string;
+}
+
+function EditorSurface({
+  documentId,
+  userName,
+  userRole,
+  ydoc,
+  wsProvider,
+  userColor,
+}: EditorSurfaceProps) {
   const isReadOnly = userRole === "viewer";
   const [status, setStatus] = useState<"connecting" | "connected" | "disconnected">("connecting");
   const [synced, setSynced] = useState(false);
@@ -61,11 +142,12 @@ export default function CollaborativeEditor({
   const [followingUser, setFollowingUser] = useState<string | null>(null);
   const [networkCondition, setNetworkCondition] = useState<"normal" | "lag" | "offline">("normal");
 
-  // Word count & stats
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
 
-  // Initialize theme from localStorage
+  const yMeta = useRef(ydoc.getMap("meta")).current;
+
+  // Initialize theme
   useEffect(() => {
     const savedTheme = localStorage.getItem("docfix-theme");
     if (savedTheme === "dark") {
@@ -79,28 +161,10 @@ export default function CollaborativeEditor({
     localStorage.setItem("docfix-theme", next ? "dark" : "light");
   };
 
-  // Create Yjs document and providers — stable across re-renders
-  const { ydoc, wsProvider, userColor, yMeta } = useMemo(() => {
-    const doc = new Y.Doc();
-    const color = getRandomColor();
-    const meta = doc.getMap("meta");
-
-    // WebSocket provider — connects to our collaboration server
-    const provider = new WebsocketProvider("ws://localhost:1234", documentId, doc);
-
-    // IndexedDB persistence — saves document locally for offline support
-    new IndexeddbPersistence(documentId, doc);
-
-    return { ydoc: doc, wsProvider: provider, userColor: color, yMeta: meta };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [documentId]);
-
-  // Sync document title with Yjs map and localStorage
+  // Sync title
   useEffect(() => {
-    const updateTitleFromYjs = () => {
+    const updateTitle = () => {
       let remoteTitle = (yMeta.get("title") as string) || "";
-      
-      // If Yjs doesn't have a title yet, check if we created one on the Dashboard
       if (!remoteTitle) {
         try {
           const saved = localStorage.getItem("synora-documents");
@@ -114,33 +178,18 @@ export default function CollaborativeEditor({
               }
             }
           }
-        } catch {
-          // Ignore
-        }
+        } catch {}
       }
 
       const finalTitle = remoteTitle || "Untitled Document";
       setTitle(finalTitle);
-
-      try {
-        const saved = localStorage.getItem("synora-documents");
-        if (saved) {
-          const docs = JSON.parse(saved);
-          const updated = docs.map((d: { id: string; title: string }) =>
-            d.id === documentId ? { ...d, title: finalTitle } : d
-          );
-          localStorage.setItem("synora-documents", JSON.stringify(updated));
-        }
-      } catch (e) {
-        console.error("Failed to update title in localStorage", e);
-      }
     };
 
-    yMeta.observe(updateTitleFromYjs);
-    updateTitleFromYjs();
+    yMeta.observe(updateTitle);
+    updateTitle();
 
     return () => {
-      yMeta.unobserve(updateTitleFromYjs);
+      yMeta.unobserve(updateTitle);
     };
   }, [yMeta, documentId, isReadOnly]);
 
@@ -150,7 +199,7 @@ export default function CollaborativeEditor({
     yMeta.set("title", newTitle);
   };
 
-  // Track connection status
+  // Connection status tracking
   useEffect(() => {
     const onStatus = (event: { status: string }) => {
       setStatus(event.status as "connecting" | "connected" | "disconnected");
@@ -168,55 +217,35 @@ export default function CollaborativeEditor({
     };
   }, [wsProvider]);
 
-  // Clean up on unmount
-  useEffect(() => {
-    return () => {
-      wsProvider.destroy();
-      ydoc.destroy();
-    };
-  }, [wsProvider, ydoc]);
-
-  // Explicitly sync awareness state to WebSocket provider
-  useEffect(() => {
-    if (wsProvider && wsProvider.awareness && userName) {
-      wsProvider.awareness.setLocalStateField("user", {
-        name: userName,
-        color: userColor,
-      });
-    }
-  }, [wsProvider, userName, userColor]);
-
-  const editor = useEditor(
-    {
-      editable: !isReadOnly,
-      extensions: [
-        StarterKit.configure({
-          undoRedo: false, // Collaborative history handled by Yjs
-        }),
-        Underline,
-        Collaboration.configure({
-          document: ydoc,
-        }),
-        CollaborationCaret.configure({
-          provider: wsProvider,
-          user: {
-            name: userName,
-            color: userColor,
-          },
-        }),
-      ],
-      shouldRerenderOnTransaction: true,
-      onUpdate: ({ editor: ed }) => {
-        const text = ed.getText();
-        setCharCount(text.length);
-        const words = text.trim().split(/\s+/).filter(Boolean).length;
-        setWordCount(words);
-      },
+  // TipTap v3 Editor initialization
+  const editor = useEditor({
+    editable: !isReadOnly,
+    extensions: [
+      StarterKit.configure({
+        undoRedo: false, // Collaborative history handled by Yjs
+      }),
+      Underline,
+      Collaboration.configure({
+        document: ydoc,
+      }),
+      CollaborationCaret.configure({
+        provider: wsProvider,
+        user: {
+          name: userName,
+          color: userColor,
+        },
+      }),
+    ],
+    shouldRerenderOnTransaction: true,
+    onUpdate: ({ editor: ed }) => {
+      const text = ed.getText();
+      setCharCount(text.length);
+      const words = text.trim().split(/\s+/).filter(Boolean).length;
+      setWordCount(words);
     },
-    [ydoc, wsProvider, isReadOnly]
-  );
+  });
 
-  // Follow User Mode: scroll to remote caret
+  // Follow User Mode
   const handleFollowUser = useCallback(
     (targetName: string) => {
       if (followingUser === targetName) {
@@ -225,8 +254,7 @@ export default function CollaborativeEditor({
       }
       setFollowingUser(targetName);
 
-      // Find remote caret element in DOM and smooth scroll
-      const labels = document.querySelectorAll(".collaboration-carets__label");
+      const labels = document.querySelectorAll(".collaboration-carets__label, .collaboration-cursor__label");
       labels.forEach((label) => {
         if (label.textContent?.includes(targetName)) {
           label.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -236,7 +264,7 @@ export default function CollaborativeEditor({
     [followingUser]
   );
 
-  // Connection toggler & Chaos Mode handler
+  // Network Chaos Simulator
   const handleNetworkChange = useCallback(
     (condition: "normal" | "lag" | "offline") => {
       setNetworkCondition(condition);
@@ -253,10 +281,10 @@ export default function CollaborativeEditor({
 
   if (!editor) {
     return (
-      <div className={`flex items-center justify-center h-screen ${isDark ? "bg-gray-950 text-gray-300" : "bg-gray-50 text-gray-700"}`}>
+      <div className="flex items-center justify-center h-screen bg-slate-900 text-slate-300">
         <div className="flex items-center gap-3">
           <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <span className="font-medium text-sm">Loading DocFix CRDT Engine...</span>
+          <span className="font-medium text-sm">Initializing TipTap Surface...</span>
         </div>
       </div>
     );
@@ -264,7 +292,7 @@ export default function CollaborativeEditor({
 
   return (
     <div className={`flex flex-col h-screen transition-colors ${isDark ? "bg-gray-950 text-gray-100" : "bg-gray-50 text-gray-900"}`}>
-      {/* Top Header Bar (Hidden in Zen mode) */}
+      {/* Top Header Bar */}
       {!isZenMode && (
         <div className={`flex items-center justify-between px-4 py-2.5 border-b transition-colors ${isDark ? "bg-gray-900 border-gray-800" : "bg-white border-gray-200"}`}>
           <div className="flex items-center gap-3">
@@ -279,7 +307,7 @@ export default function CollaborativeEditor({
 
             <div className={`h-5 w-px mx-1 hidden sm:block ${isDark ? "bg-gray-700" : "bg-gray-300"}`} />
 
-            {/* Editable Document Title */}
+            {/* Editable Title */}
             <input
               type="text"
               value={title}
