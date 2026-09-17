@@ -29,6 +29,7 @@ import DocPilotModal from "../ai/DocPilotModal";
 import PollModal from "../polls/PollModal";
 import SaveToast from "../ui/SaveToast";
 import FindReplaceBar from "./FindReplaceBar";
+import PagesSidebar from "./PagesSidebar";
 import ShortcutsModal from "../ui/ShortcutsModal";
 import ShortcutsPill from "../ui/ShortcutsPill";
 import { createSnapshot } from "../../lib/snapshotUtils";
@@ -175,6 +176,7 @@ function EditorSurface({
   const [isPaginated, setIsPaginated] = useState(false);
   const [isFindReplaceOpen, setIsFindReplaceOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+  const [isPagesPanelOpen, setIsPagesPanelOpen] = useState(false);
   
   // Modals & Drawers
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -639,6 +641,8 @@ function EditorSurface({
         isPaginated={isPaginated}
         onTogglePaginated={toggleViewMode}
         onOpenFindReplace={() => setIsFindReplaceOpen(true)}
+        isPagesOpen={isPagesPanelOpen}
+        onTogglePages={() => setIsPagesPanelOpen(!isPagesPanelOpen)}
       />
 
       {/* Floating Find & Replace Bar */}
@@ -649,49 +653,62 @@ function EditorSurface({
         isDark={isDark}
       />
 
-      {/* Main Canvas Area */}
-      <div
-        className={`flex-1 overflow-y-auto cursor-text ${isDark ? "bg-[#0B0F17]" : "bg-[#F8F9FA]"}`}
-        onClick={() => {
-          if (!editor.isFocused) {
-            editor.commands.focus("end");
-          }
-        }}
-      >
+      {/* Main Workspace Area (Left Pages Rail + Scrollable Canvas) */}
+      <div className="flex-1 flex overflow-hidden relative">
+        {/* PowerPoint-style Left Pages Rail */}
+        {!isZenMode && (
+          <PagesSidebar
+            editor={editor}
+            isOpen={isPagesPanelOpen}
+            onClose={() => setIsPagesPanelOpen(false)}
+            isDark={isDark}
+          />
+        )}
+
+        {/* Main Canvas Area */}
         <div
-          className={`transition-all ${
-            isPaginated
-              ? `paper-paginated mx-auto my-8 border ${
-                  isDark
-                    ? "bg-gray-900 border-gray-800 text-gray-100 shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
-                    : "bg-white border-gray-300/80 text-gray-900 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
-                }`
-              : `max-w-4xl mx-auto my-8 rounded-2xl border ${
-                  isDark
-                    ? "bg-gray-900 border-gray-800/80 text-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
-                    : "bg-white border-gray-200/70 text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.02),0_6px_16px_rgba(0,0,0,0.04),0_16px_36px_rgba(0,0,0,0.06)]"
-                }`
-          }`}
-          onClick={(e) => {
-            e.stopPropagation();
+          className={`flex-1 overflow-y-auto cursor-text ${isDark ? "bg-[#0B0F17]" : "bg-[#F8F9FA]"}`}
+          onClick={() => {
             if (!editor.isFocused) {
-              editor.commands.focus();
+              editor.commands.focus("end");
             }
           }}
         >
-          {/* Paginated Header Indicator */}
-          {isPaginated && (
-            <div
-              className={`px-16 pt-6 pb-2 text-[10px] uppercase font-semibold tracking-wider flex justify-between border-b select-none ${
-                isDark ? "text-gray-500 border-gray-800" : "text-gray-400 border-gray-100"
-              }`}
-            >
-              <span>DocFix Document · {title}</span>
-              <span>A4 Page 1</span>
-            </div>
-          )}
+          <div
+            className={`transition-all ${
+              isPaginated
+                ? `paper-paginated mx-auto my-8 border ${
+                    isDark
+                      ? "bg-gray-900 border-gray-800 text-gray-100 shadow-[0_8px_32px_rgba(0,0,0,0.6)]"
+                      : "bg-white border-gray-300/80 text-gray-900 shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
+                  }`
+                : `max-w-4xl mx-auto my-8 rounded-2xl border ${
+                    isDark
+                      ? "bg-gray-900 border-gray-800/80 text-gray-100 shadow-[0_4px_24px_rgba(0,0,0,0.5)]"
+                      : "bg-white border-gray-200/70 text-gray-900 shadow-[0_1px_3px_rgba(0,0,0,0.02),0_6px_16px_rgba(0,0,0,0.04),0_16px_36px_rgba(0,0,0,0.06)]"
+                  }`
+            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!editor.isFocused) {
+                editor.commands.focus();
+              }
+            }}
+          >
+            {/* Paginated Header Indicator */}
+            {isPaginated && (
+              <div
+                className={`px-16 pt-6 pb-2 text-[10px] uppercase font-semibold tracking-wider flex justify-between border-b select-none ${
+                  isDark ? "text-gray-500 border-gray-800" : "text-gray-400 border-gray-100"
+                }`}
+              >
+                <span>DocFix Document · {title}</span>
+                <span>A4 Page 1</span>
+              </div>
+            )}
 
-          <EditorContent editor={editor} />
+            <EditorContent editor={editor} />
+          </div>
         </div>
       </div>
 

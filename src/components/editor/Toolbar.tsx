@@ -59,6 +59,8 @@ interface ToolbarProps {
   isPaginated?: boolean;
   onTogglePaginated?: () => void;
   onOpenFindReplace?: () => void;
+  isPagesOpen?: boolean;
+  onTogglePages?: () => void;
 }
 
 interface ToolbarButtonProps {
@@ -115,6 +117,8 @@ export default function Toolbar({
   isPaginated = false,
   onTogglePaginated,
   onOpenFindReplace,
+  isPagesOpen = false,
+  onTogglePages,
 }: ToolbarProps) {
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [showTableMenu, setShowTableMenu] = useState(false);
@@ -634,6 +638,27 @@ export default function Toolbar({
         <div className="flex items-center gap-2">
           {/* Find & Replace & View Mode Pill */}
           <div className={pillContainerClass}>
+            {/* Pages Thumbnail Sidebar Toggle */}
+            {onTogglePages && (
+              <button
+                type="button"
+                onClick={onTogglePages}
+                className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-md font-semibold transition-all cursor-pointer active:scale-95 ${
+                  isPagesOpen
+                    ? isDark
+                      ? "bg-gray-700 text-blue-400 shadow-xs"
+                      : "bg-white text-blue-600 shadow-xs"
+                    : isDark
+                      ? "text-gray-400 hover:text-gray-100 hover:bg-gray-700/60"
+                      : "text-gray-600 hover:text-gray-900 hover:bg-white"
+                }`}
+                title="Toggle Left Pages Panel (Thumbnails & Add Page)"
+              >
+                <Layers size={13} />
+                <span className="hidden xl:inline">Pages</span>
+              </button>
+            )}
+
             {/* Find & Replace */}
             {onOpenFindReplace && (
               <button
@@ -666,8 +691,8 @@ export default function Toolbar({
                 }`}
                 title={isPaginated ? "Switch to Pageless continuous view" : "Switch to A4 Paginated sheets"}
               >
-                {isPaginated ? <FileText size={13} /> : <Layers size={13} />}
-                <span className="hidden xl:inline">{isPaginated ? "Pages" : "Pageless"}</span>
+                {isPaginated ? <FileText size={13} /> : <FileText size={13} className="opacity-60" />}
+                <span className="hidden xl:inline">{isPaginated ? "A4" : "Pageless"}</span>
               </button>
             )}
           </div>

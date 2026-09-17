@@ -98,8 +98,27 @@ body {
 
 .tiptap hr {
   border: none;
-  border-top: 1px solid rgba(148, 163, 184, 0.25);
-  margin: 2.2em 0;
+  border-top: 1px dashed rgba(148, 163, 184, 0.4);
+  margin: 3rem 0;
+  position: relative;
+  overflow: visible;
+  text-align: center;
+}
+
+.tiptap hr::after {
+  content: "PAGE BREAK";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--background, #ffffff);
+  padding: 0 12px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: #94a3b8;
+  border-radius: 9999px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
 }
 
 .tiptap strong {
