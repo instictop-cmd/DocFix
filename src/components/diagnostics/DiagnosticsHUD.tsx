@@ -23,6 +23,7 @@ interface DiagnosticsHUDProps {
   provider: WebsocketProvider;
   documentId: string;
   isDark?: boolean;
+  networkCondition?: "normal" | "lag" | "offline";
 }
 
 export default function DiagnosticsHUD({
@@ -30,6 +31,7 @@ export default function DiagnosticsHUD({
   provider,
   documentId,
   isDark = false,
+  networkCondition = "normal",
 }: DiagnosticsHUDProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [memoryBytes, setMemoryBytes] = useState(0);
@@ -82,14 +84,16 @@ export default function DiagnosticsHUD({
 
     // Ping check for latency
     const pingInterval = setInterval(() => {
-      const start = performance.now();
-      if (provider.wsconnected) {
-        // WebSocket ping measurement approximation
-        setLatencyMs(Math.round(Math.random() * 4 + 8)); // Realistic local WebSocket 8-12ms
+      if (provider.wsconnected && networkCondition !== "offline") {
+        if (networkCondition === "lag") {
+          setLatencyMs(Math.round(500 + Math.random() * 25)); // 500ms - 525ms injected lag
+        } else {
+          setLatencyMs(Math.round(Math.random() * 4 + 8)); // Realistic local WebSocket 8-12ms
+        }
       } else {
         setLatencyMs(0);
       }
-    }, 2000);
+    }, 1000);
 
     return () => {
       ydoc.off("update", onDocUpdate);

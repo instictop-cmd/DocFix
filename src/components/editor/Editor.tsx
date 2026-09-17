@@ -264,7 +264,27 @@ function EditorSurface({
     [followingUser]
   );
 
-  // Network Chaos Simulator
+  // Network Chaos & Latency Simulator (Real 500ms Injected Latency)
+  useEffect(() => {
+    const ws = wsProvider.ws;
+    if (!ws) return;
+
+    if (networkCondition === "lag") {
+      const originalSend = ws.send;
+      ws.send = function (data: any) {
+        setTimeout(() => {
+          if (ws.readyState === WebSocket.OPEN) {
+            originalSend.call(ws, data);
+          }
+        }, 500);
+      };
+
+      return () => {
+        ws.send = originalSend;
+      };
+    }
+  }, [networkCondition, wsProvider, wsProvider.ws]);
+
   const handleNetworkChange = useCallback(
     (condition: "normal" | "lag" | "offline") => {
       setNetworkCondition(condition);
@@ -481,6 +501,7 @@ function EditorSurface({
         provider={wsProvider}
         documentId={documentId}
         isDark={isDark}
+        networkCondition={networkCondition}
       />
     </div>
   );
