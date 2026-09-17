@@ -15,6 +15,8 @@ import Toolbar from "./Toolbar";
 import OnlineUsers from "../presence/OnlineUsers";
 import DiagnosticsHUD from "../diagnostics/DiagnosticsHUD";
 import ShareModal from "./ShareModal";
+import TeamChat from "../chat/TeamChat";
+import VersionHistoryModal from "../history/VersionHistoryModal";
 import {
   FileText,
   Clock,
@@ -25,6 +27,8 @@ import {
   CheckCircle2,
   Lock,
   Share2,
+  MessageSquare,
+  History,
 } from "lucide-react";
 
 // Pre-defined color palette
@@ -150,7 +154,11 @@ function EditorSurface({
   const [isZenMode, setIsZenMode] = useState(false);
   const [followingUser, setFollowingUser] = useState<string | null>(null);
   const [networkCondition, setNetworkCondition] = useState<"normal" | "lag" | "offline">("normal");
+  
+  // Modals & Drawers
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
@@ -258,6 +266,60 @@ function EditorSurface({
       setWordCount(words);
     },
   });
+
+  // Native Clipboard Paste & Drag-and-Drop Image Handler
+  useEffect(() => {
+    if (!editor || isReadOnly) return;
+
+    const handlePaste = (e: ClipboardEvent) => {
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.startsWith("image/")) {
+          const file = items[i].getAsFile();
+          if (file) {
+            e.preventDefault();
+            const reader = new FileReader();
+            reader.onload = (uploadEvent) => {
+              const src = uploadEvent.target?.result as string;
+              if (src) {
+                editor.chain().focus().setImage({ src }).run();
+              }
+            };
+            reader.readAsDataURL(file);
+          }
+        }
+      }
+    };
+
+    const handleDrop = (e: DragEvent) => {
+      const files = e.dataTransfer?.files;
+      if (!files || files.length === 0) return;
+
+      for (let i = 0; i < files.length; i++) {
+        if (files[i].type.startsWith("image/")) {
+          e.preventDefault();
+          const reader = new FileReader();
+          reader.onload = (uploadEvent) => {
+            const src = uploadEvent.target?.result as string;
+            if (src) {
+              editor.chain().focus().setImage({ src }).run();
+            }
+          };
+          reader.readAsDataURL(files[i]);
+        }
+      }
+    };
+
+    window.addEventListener("paste", handlePaste);
+    window.addEventListener("drop", handleDrop);
+
+    return () => {
+      window.removeEventListener("paste", handlePaste);
+      window.removeEventListener("drop", handleDrop);
+    };
+  }, [editor, isReadOnly]);
 
   // Follow User Mode
   const handleFollowUser = useCallback(
@@ -369,12 +431,12 @@ function EditorSurface({
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Share / Invite Button */}
+            {/* Share / Invite Button (With Gmail support) */}
             <button
               type="button"
               onClick={() => setIsShareModalOpen(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold transition-all shadow-xs cursor-pointer"
-              title="Share document via email or link"
+              title="Share document via Gmail, email, or link"
             >
               <Share2 size={13} />
               <span className="hidden sm:inline">Invite / Share</span>
@@ -421,6 +483,9 @@ function EditorSurface({
         isZenMode={isZenMode}
         onToggleZenMode={() => setIsZenMode(!isZenMode)}
         documentTitle={title}
+        onOpenHistory={() => setIsHistoryModalOpen(true)}
+        onToggleChat={() => setIsChatOpen(!isChatOpen)}
+        isChatOpen={isChatOpen}
       />
 
       {/* Main Canvas Area */}
@@ -488,6 +553,25 @@ function EditorSurface({
         </div>
 
         <div className="flex items-center gap-3 text-[11px]">
+          {/* Quick Chat & History Triggers */}
+          <button
+            type="button"
+            onClick={() => setIsChatOpen(!isChatOpen)}
+            className="flex items-center gap-1 text-blue-500 hover:underline cursor-pointer"
+          >
+            <MessageSquare size={12} />
+            <span>Chat</span>
+          </button>
+          <span>·</span>
+          <button
+            type="button"
+            onClick={() => setIsHistoryModalOpen(true)}
+            className="flex items-center gap-1 text-purple-500 hover:underline cursor-pointer"
+          >
+            <History size={12} />
+            <span>History</span>
+          </button>
+          <span>·</span>
           <span className="font-semibold text-blue-500 hidden md:inline">Yjs YATA CRDT</span>
           <span>·</span>
           <button
@@ -506,12 +590,32 @@ function EditorSurface({
         </div>
       </footer>
 
-      {/* Google Docs-Style Share Modal */}
+      {/* Google Docs-Style Share Modal (with Direct Gmail Composer) */}
       <ShareModal
         isOpen={isShareModalOpen}
         onClose={() => setIsShareModalOpen(false)}
         documentId={documentId}
         documentTitle={title}
+        isDark={isDark}
+      />
+
+      {/* Live In-Doc Team Chat Drawer */}
+      <TeamChat
+        isOpen={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        ydoc={ydoc}
+        currentUserName={userName}
+        currentUserColor={userColor}
+        isDark={isDark}
+      />
+
+      {/* Document Version History & Snapshot Rollback */}
+      <VersionHistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        ydoc={ydoc}
+        editor={editor}
+        currentUserName={userName}
         isDark={isDark}
       />
 

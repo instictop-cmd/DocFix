@@ -14,6 +14,7 @@ import {
   Shield,
   Eye,
   Edit3,
+  ExternalLink,
 } from "lucide-react";
 
 interface ShareModalProps {
@@ -34,32 +35,59 @@ export default function ShareModal({
   const [role, setRole] = useState<"editor" | "viewer">("editor");
   const [emailInput, setEmailInput] = useState("");
   const [copied, setCopied] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const shareUrl = `${origin}/document/${documentId}${role === "viewer" ? "?role=viewer" : ""}`;
+  const docName = documentTitle || "Untitled Document";
+  const roleLabel = role === "editor" ? "Editor (Can edit & collaborate)" : "Viewer (Read-only)";
 
   const handleCopy = () => {
     navigator.clipboard.writeText(shareUrl);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
+    setStatusMessage("Link copied to clipboard!");
+    setTimeout(() => {
+      setCopied(false);
+      setStatusMessage(null);
+    }, 2500);
   };
 
-  const handleSendEmail = (e: React.FormEvent) => {
+  const getEmailContent = () => {
+    const subject = `Invitation to collaborate on "${docName}" - DocFix`;
+    const body = `Hi,\n\nI have invited you to collaborate on the document "${docName}" in DocFix as a ${roleLabel}.\n\nClick the link below to open and edit together in real-time:\n${shareUrl}\n\nHappy Collaborating,\nDocFix Real-Time Team`;
+    return { subject, body };
+  };
+
+  // 1. Direct Web Gmail Opener (Evaluator Feature Request)
+  const handleOpenGmail = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!emailInput.trim()) return;
+    const { subject, body } = getEmailContent();
+    const targetEmail = emailInput.trim();
+    
+    // Direct Google Mail web compose URL
+    const gmailUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
+      targetEmail
+    )}&su=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-    // Generate mailto link with pre-filled subject and body
-    const subject = encodeURIComponent(`Invitation to collaborate on: ${documentTitle || "Document"}`);
-    const body = encodeURIComponent(
-      `Hi,\n\nI've invited you to collaborate on "${documentTitle || "Untitled Document"}" on DocFix as a ${role === "editor" ? "Editor (Can edit)" : "Viewer (Read-only)"}.\n\nClick the link below to open and start editing in real-time:\n${shareUrl}\n\nBest regards,\nDocFix Team`
+    window.open(gmailUrl, "_blank", "noopener,noreferrer");
+    setStatusMessage("Opening Gmail in new tab...");
+    setTimeout(() => setStatusMessage(null), 3000);
+  };
+
+  // 2. Default System Mail Client
+  const handleDefaultMailto = () => {
+    const { subject, body } = getEmailContent();
+    const targetEmail = emailInput.trim();
+    window.open(
+      `mailto:${encodeURIComponent(targetEmail)}?subject=${encodeURIComponent(
+        subject
+      )}&body=${encodeURIComponent(body)}`,
+      "_blank"
     );
-
-    window.open(`mailto:${emailInput.trim()}?subject=${subject}&body=${body}`, "_blank");
-    setEmailSent(true);
-    setTimeout(() => setEmailSent(false), 3000);
+    setStatusMessage("Opening default mail client...");
+    setTimeout(() => setStatusMessage(null), 3000);
   };
 
   return (
@@ -79,10 +107,10 @@ export default function ShareModal({
             </div>
             <div>
               <h3 className="font-bold text-base text-gray-900 dark:text-white leading-tight">
-                Share &quot;{documentTitle || "Untitled Document"}&quot;
+                Share &quot;{docName}&quot;
               </h3>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Invite team members via email or shareable link
+                Invite via Gmail, email client, or shareable link
               </p>
             </div>
           </div>
@@ -95,13 +123,13 @@ export default function ShareModal({
           </button>
         </div>
 
-        {/* 1. Email Invitation Input */}
-        <form onSubmit={handleSendEmail} className="mb-6">
+        {/* 1. Email Invitation Section */}
+        <div className="mb-5">
           <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">
-            Send Email Invitation
+            Send Invitation via Email
           </label>
-          <div className="flex gap-2">
-            <div className="relative flex-1">
+          <div className="space-y-2">
+            <div className="relative">
               <Mail
                 size={16}
                 className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
@@ -110,7 +138,7 @@ export default function ShareModal({
                 type="email"
                 value={emailInput}
                 onChange={(e) => setEmailInput(e.target.value)}
-                placeholder="colleague@example.com..."
+                placeholder="colleague@gmail.com (or leave empty for link)..."
                 className={`w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   isDark
                     ? "bg-gray-800 border-gray-700 text-white placeholder-gray-500"
@@ -118,20 +146,51 @@ export default function ShareModal({
                 }`}
               />
             </div>
-            <button
-              type="submit"
-              className="flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer whitespace-nowrap"
-            >
-              <Send size={14} />
-              <span>{emailSent ? "Opened Mail!" : "Send Invite"}</span>
-            </button>
-          </div>
-        </form>
 
-        <div className="relative flex py-2 items-center mb-5">
+            <div className="flex gap-2 pt-1">
+              {/* Direct Gmail Web Compose Button */}
+              <button
+                type="button"
+                onClick={handleOpenGmail}
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all shadow-xs cursor-pointer"
+                title="Open directly in Gmail web composer"
+              >
+                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                  <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.272H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z"/>
+                </svg>
+                <span>Share via Gmail</span>
+                <ExternalLink size={12} className="opacity-70" />
+              </button>
+
+              {/* Default Mail App Button */}
+              <button
+                type="button"
+                onClick={handleDefaultMailto}
+                className={`flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-semibold border transition-all cursor-pointer ${
+                  isDark
+                    ? "bg-gray-800 hover:bg-gray-700 text-gray-200 border-gray-700"
+                    : "bg-gray-100 hover:bg-gray-200 text-gray-800 border-gray-200"
+                }`}
+                title="Open system default mail client"
+              >
+                <Mail size={13} />
+                <span>Mail App</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {statusMessage && (
+          <div className="mb-4 px-3 py-1.5 rounded-lg bg-blue-500/10 text-blue-500 text-xs font-medium flex items-center gap-1.5 animate-in fade-in duration-150">
+            <Check size={13} />
+            <span>{statusMessage}</span>
+          </div>
+        )}
+
+        <div className="relative flex py-1.5 items-center mb-4">
           <div className="flex-grow border-t border-gray-200 dark:border-gray-800" />
           <span className="flex-shrink mx-3 text-xs text-gray-400 font-medium">
-            General Access & Permissions
+            Permission & General Access
           </span>
           <div className="flex-grow border-t border-gray-200 dark:border-gray-800" />
         </div>
@@ -148,7 +207,7 @@ export default function ShareModal({
                   Anyone with the link
                 </p>
                 <p className="text-[11px] text-gray-500 dark:text-gray-400">
-                  Choose access role for collaborators
+                  Choose access permission for collaborators
                 </p>
               </div>
             </div>
@@ -182,7 +241,7 @@ export default function ShareModal({
             }`}
           >
             {copied ? <Check size={15} /> : <Copy size={15} />}
-            <span>{copied ? "Link Copied to Clipboard!" : "Copy Link"}</span>
+            <span>{copied ? "Link Copied!" : "Copy Link"}</span>
           </button>
 
           <button
