@@ -25,7 +25,9 @@ export default function DocumentPage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="bg-white rounded-xl shadow-lg p-8 max-w-md w-full mx-4">
           <div className="text-center mb-6">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">📝 Synora</h1>
+            <h1 className="text-3xl font-bold text-blue-600 mb-2 flex items-center justify-center gap-2">
+              <span>📄</span> DocFix
+            </h1>
             <p className="text-gray-500">Enter your name to start collaborating</p>
           </div>
 

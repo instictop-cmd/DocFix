@@ -181,7 +181,7 @@ const server = http.createServer((req, res) => {
     return;
   }
   res.writeHead(200, { "Content-Type": "text/plain" });
-  res.end("Synora Collaboration Server");
+  res.end("DocFix Collaboration Server");
 });
 
 const wss = new WebSocketServer({ server });
@@ -193,7 +193,7 @@ wss.on("connection", (conn, req) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`\n🟢 Synora Collaboration Server running`);
+  console.log(`\n🟢 DocFix Collaboration Server running`);
   console.log(`   WebSocket: ws://${HOST}:${PORT}`);
   console.log(`   Health:    http://${HOST}:${PORT}/health`);
   console.log(`   Persistence: ${PERSIST_DIR}\n`);

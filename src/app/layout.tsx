@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Synora — Real-Time Collaborative Editor",
+  title: "DocFix — Real-Time Collaborative Document Editor",
   description:
     "A Google Docs-style collaborative document editor powered by CRDT technology. Edit together in real time with live cursors, offline support, and automatic conflict resolution.",
 };

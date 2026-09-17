@@ -176,11 +176,11 @@ export default function CollaborativeEditor({
         <div className="flex items-center gap-3">
           <a
             href="/"
-            className="text-xl font-bold text-gray-800 hover:text-blue-600 transition-colors flex items-center gap-1.5"
+            className="text-xl font-bold text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-1.5"
             title="Back to Dashboard"
           >
-            <span>📝</span>
-            <span className="hidden sm:inline">Synora</span>
+            <span>📄</span>
+            <span className="hidden sm:inline">DocFix</span>
           </a>
 
           <div className="h-5 w-px bg-gray-300 mx-1 hidden sm:block" />

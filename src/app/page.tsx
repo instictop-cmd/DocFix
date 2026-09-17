@@ -104,9 +104,11 @@ export default function Dashboard() {
       {/* Header */}
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-800">📝 Synora</h1>
-          <p className="text-sm text-gray-500">
-            Real-Time Collaborative Editor
+          <h1 className="text-2xl font-bold text-blue-600 flex items-center gap-2">
+            <span>📄</span> DocFix
+          </h1>
+          <p className="text-sm text-gray-500 font-medium">
+            Real-Time Collaborative Document Editor
           </p>
         </div>
       </header>
