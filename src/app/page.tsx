@@ -20,26 +20,26 @@ import {
   X,
 } from "lucide-react";
 
-// Pre-configured profiles for hackathon judging & quick testing
+// Pre-configured profiles with soothing pastel colors
 const PROFILES = [
   {
     name: "Alice",
     role: "Lead Architect",
-    color: "#2563EB",
+    color: "#E07A5F", // Pastel Terracotta
     type: "editor" as const,
     badge: "Editor",
   },
   {
     name: "Bob",
     role: "Product Designer",
-    color: "#059669",
+    color: "#84A98C", // Pastel Sage
     type: "editor" as const,
     badge: "Editor",
   },
   {
     name: "Charlie",
     role: "Security Auditor",
-    color: "#D97706",
+    color: "#D4A373", // Pastel Honey Amber
     type: "viewer" as const,
     badge: "Viewer (Read-Only)",
   },
@@ -189,34 +189,34 @@ export default function Home() {
 
   if (isAuthLoading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center text-blue-400">
-        <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#FAF7F2] flex items-center justify-center text-orange-500">
+        <div className="w-8 h-8 border-3 border-orange-400 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   // =========================================================================
-  // SCREEN 1: LOGIN / SELECT WHO IS WORKING
+  // SCREEN 1: LOGIN / SELECT WHO IS WORKING (PASTEL WARM THEME)
   // =========================================================================
   if (!currentUser) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 flex flex-col items-center justify-center p-4">
-        <div className="bg-white dark:bg-slate-900 rounded-3xl shadow-2xl p-8 sm:p-10 max-w-lg w-full border border-slate-200 dark:border-slate-800">
+      <div className="min-h-screen bg-gradient-to-br from-[#FAF7F2] via-[#FFF6EB] to-[#FDE8D0] flex flex-col items-center justify-center p-4">
+        <div className="bg-white/95 backdrop-blur-md rounded-3xl shadow-xl shadow-orange-950/5 p-8 sm:p-10 max-w-lg w-full border border-orange-100/80">
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-blue-600 text-white text-3xl mb-4 shadow-xl shadow-blue-500/25">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-orange-500 to-amber-400 text-white text-3xl mb-4 shadow-lg shadow-orange-500/20">
               📄
             </div>
-            <h1 className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            <h1 className="text-3xl font-extrabold text-stone-800 tracking-tight">
               Welcome to DocFix
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1.5">
+            <p className="text-stone-500 text-sm mt-1.5">
               Select who is working to start your collaborative session
             </p>
           </div>
 
           {/* Quick User Profiles */}
           <div className="space-y-3 mb-6">
-            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <label className="block text-xs font-bold text-stone-400 uppercase tracking-wider">
               Select Working Profile
             </label>
             {PROFILES.map((p) => (
@@ -231,7 +231,7 @@ export default function Home() {
                     type: p.type,
                   })
                 }
-                className="w-full flex items-center justify-between p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-950/40 transition-all text-left group cursor-pointer shadow-xs"
+                className="w-full flex items-center justify-between p-3.5 rounded-2xl border border-stone-200/80 bg-stone-50/40 hover:border-orange-300 hover:bg-orange-50/50 transition-all text-left group cursor-pointer shadow-xs"
               >
                 <div className="flex items-center gap-3.5">
                   <div
@@ -241,10 +241,10 @@ export default function Home() {
                     {p.name[0]}
                   </div>
                   <div>
-                    <p className="font-bold text-slate-900 dark:text-slate-100 text-sm group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                    <p className="font-bold text-stone-800 text-sm group-hover:text-orange-600 transition-colors">
                       {p.name}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-xs text-stone-500">
                       {p.role}
                     </p>
                   </div>
@@ -252,8 +252,8 @@ export default function Home() {
                 <span
                   className={`text-xs font-semibold px-3 py-1 rounded-full ${
                     p.type === "viewer"
-                      ? "bg-amber-100 text-amber-800 dark:bg-amber-950/70 dark:text-amber-300"
-                      : "bg-blue-100 text-blue-800 dark:bg-blue-950/70 dark:text-blue-300"
+                      ? "bg-amber-50 text-amber-800 border border-amber-200/60"
+                      : "bg-orange-50 text-orange-800 border border-orange-200/60"
                   }`}
                 >
                   {p.badge}
@@ -263,11 +263,11 @@ export default function Home() {
           </div>
 
           <div className="relative flex py-2 items-center mb-4">
-            <div className="flex-grow border-t border-slate-200 dark:border-slate-800" />
-            <span className="flex-shrink mx-4 text-xs text-slate-400 font-medium">
+            <div className="flex-grow border-t border-stone-200" />
+            <span className="flex-shrink mx-4 text-xs text-stone-400 font-medium">
               or enter custom name
             </span>
-            <div className="flex-grow border-t border-slate-200 dark:border-slate-800" />
+            <div className="flex-grow border-t border-stone-200" />
           </div>
 
           {/* Custom Name Form */}
@@ -278,7 +278,7 @@ export default function Home() {
               handleLogin({
                 name,
                 role: "Custom Editor",
-                color: "#7C3AED",
+                color: "#F4A261", // Pastel Apricot
                 type: "editor",
               });
             }}
@@ -289,11 +289,11 @@ export default function Home() {
               value={customNameInput}
               onChange={(e) => setCustomNameInput(e.target.value)}
               placeholder="Your name..."
-              className="flex-1 px-4 py-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-slate-900 dark:text-white"
+              className="flex-1 px-4 py-2.5 bg-[#FAF7F2] border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 text-sm text-stone-800 placeholder-stone-400"
             />
             <button
               type="submit"
-              className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-colors cursor-pointer"
+              className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-semibold text-sm transition-colors cursor-pointer shadow-sm shadow-orange-500/20"
             >
               Continue
             </button>
@@ -304,37 +304,37 @@ export default function Home() {
   }
 
   // =========================================================================
-  // SCREEN 2: DASHBOARD (AFTER LOGGING IN)
+  // SCREEN 2: DASHBOARD (PASTEL WARM THEME)
   // =========================================================================
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col justify-between">
+    <div className="min-h-screen bg-[#FAF7F2] text-stone-800 flex flex-col justify-between">
       <div>
         {/* Top Navbar */}
-        <header className="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-xs">
+        <header className="bg-white/90 backdrop-blur-md border-b border-stone-200/80 sticky top-0 z-20 shadow-xs">
           <div className="max-w-6xl mx-auto px-6 py-3.5 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <span className="text-2xl">📄</span>
-              <h1 className="text-2xl font-extrabold text-blue-600 tracking-tight">
+              <h1 className="text-2xl font-black bg-gradient-to-r from-orange-600 via-amber-600 to-orange-500 bg-clip-text text-transparent tracking-tight">
                 DocFix
               </h1>
             </div>
 
             {/* Current User Info & Switch Button */}
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2.5 px-3 py-1.5 bg-slate-100 rounded-full border border-slate-200">
+              <div className="flex items-center gap-2.5 px-3 py-1.5 bg-stone-100/90 rounded-full border border-stone-200/80">
                 <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold"
+                  className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-xs"
                   style={{ backgroundColor: currentUser.color }}
                 >
                   {currentUser.name[0]}
                 </div>
-                <div className="text-xs font-semibold text-slate-800">
+                <div className="text-xs font-semibold text-stone-700">
                   {currentUser.name}
                 </div>
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="text-xs text-slate-400 hover:text-red-600 ml-1 cursor-pointer flex items-center gap-1 font-medium"
+                  className="text-xs text-stone-400 hover:text-orange-600 ml-1 cursor-pointer flex items-center gap-1 font-medium transition-colors"
                   title="Switch user"
                 >
                   <LogOut size={12} />
@@ -347,19 +347,22 @@ export default function Home() {
 
         {/* Dashboard Content */}
         <main className="max-w-6xl mx-auto px-6 py-8">
-          {/* Hero Banner */}
-          <div className="bg-gradient-to-br from-blue-600 via-indigo-600 to-slate-900 rounded-3xl p-8 sm:p-10 mb-8 text-white shadow-xl shadow-blue-500/10">
-            <div className="flex items-center justify-between flex-wrap gap-4 mb-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-blue-100 text-xs font-semibold backdrop-blur-sm border border-white/10">
-                <ShieldCheck size={14} className="text-emerald-400" />
+          {/* Hero Banner with Soft Pastel Gradient */}
+          <div className="relative overflow-hidden bg-gradient-to-br from-[#FFF7ED] via-[#FFEDD5] to-[#FED7AA]/80 border border-orange-200/80 rounded-3xl p-8 sm:p-10 mb-8 text-stone-800 shadow-sm">
+            {/* Subtle background ambient highlight */}
+            <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-orange-300/20 rounded-full blur-3xl pointer-events-none" />
+
+            <div className="flex items-center justify-between flex-wrap gap-4 mb-4 relative z-10">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/80 border border-orange-200/90 text-orange-950 text-xs font-semibold backdrop-blur-sm shadow-xs">
+                <ShieldCheck size={14} className="text-orange-600" />
                 <span>CRDT Workspace Active · Logged in as {currentUser.name}</span>
               </div>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
+            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3 text-stone-900 relative z-10">
               Create & Collaborate in Real Time
             </h2>
-            <p className="text-blue-100 mb-8 max-w-2xl text-sm sm:text-base leading-relaxed">
+            <p className="text-stone-600 mb-8 max-w-2xl text-sm sm:text-base leading-relaxed relative z-10 font-normal">
               Every document is powered by Yjs YATA CRDT. Multiple users can edit simultaneously
               with sub-millisecond sync, live presence carets, and zero race conditions.
             </p>
@@ -368,7 +371,7 @@ export default function Home() {
             <button
               type="button"
               onClick={() => setIsCreateModalOpen(true)}
-              className="flex items-center gap-2.5 px-6 py-3.5 bg-white text-blue-700 rounded-xl font-bold hover:bg-blue-50 transition-all shadow-lg shadow-black/10 cursor-pointer text-base hover:scale-102"
+              className="relative z-10 flex items-center gap-2.5 px-6 py-3.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold transition-all shadow-md shadow-orange-500/20 cursor-pointer text-base hover:scale-[1.02] active:scale-[0.98]"
             >
               <Plus size={20} />
               <span>New Document</span>
@@ -376,8 +379,8 @@ export default function Home() {
           </div>
 
           {/* Join by URL / ID Box */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-8 shadow-xs">
-            <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">
+          <div className="bg-white rounded-2xl border border-stone-200/90 p-5 mb-8 shadow-xs">
+            <h3 className="text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
               Join Shared Document
             </h3>
             <form onSubmit={handleJoinDocument} className="flex gap-3">
@@ -386,11 +389,11 @@ export default function Home() {
                 value={joinUrlInput}
                 onChange={(e) => setJoinUrlInput(e.target.value)}
                 placeholder="Paste document ID or full URL link..."
-                className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                className="flex-1 px-4 py-2.5 bg-[#FAF7F2] border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 text-sm text-stone-800 placeholder-stone-400"
               />
               <button
                 type="submit"
-                className="flex items-center gap-2 px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm transition-colors cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2.5 bg-stone-900 hover:bg-stone-800 text-white rounded-xl font-semibold text-sm transition-colors cursor-pointer shadow-xs"
               >
                 <ArrowRight size={16} />
                 <span>Join</span>
@@ -401,25 +404,25 @@ export default function Home() {
           {/* Recent Documents Section */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-slate-900">Your Documents</h3>
-              <span className="text-xs text-slate-500">
+              <h3 className="text-lg font-bold text-stone-800">Your Documents</h3>
+              <span className="text-xs text-stone-500 font-medium">
                 {documents.length} {documents.length === 1 ? "document" : "documents"}
               </span>
             </div>
 
             {documents.length === 0 ? (
-              <div className="bg-white rounded-2xl border border-dashed border-slate-300 p-12 text-center">
-                <FileText size={44} className="mx-auto text-slate-300 mb-3" />
-                <p className="text-slate-700 font-semibold mb-1">
+              <div className="bg-white rounded-2xl border border-dashed border-stone-300 p-12 text-center shadow-xs">
+                <FileText size={44} className="mx-auto text-stone-300 mb-3" />
+                <p className="text-stone-700 font-semibold mb-1">
                   No documents created yet
                 </p>
-                <p className="text-slate-400 text-xs mb-4">
+                <p className="text-stone-400 text-xs mb-4">
                   Click &quot;New Document&quot; above to create and name your first document.
                 </p>
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-orange-50 text-orange-700 border border-orange-200/60 hover:bg-orange-100 rounded-lg text-xs font-bold transition-colors cursor-pointer"
                 >
                   <Plus size={15} /> Create Document
                 </button>
@@ -429,21 +432,21 @@ export default function Home() {
                 {documents.map((doc) => (
                   <div
                     key={doc.id}
-                    className="bg-white rounded-xl border border-slate-200 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-blue-300 hover:shadow-md transition-all group"
+                    className="bg-white rounded-xl border border-stone-200/90 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-orange-300 hover:shadow-md transition-all group"
                   >
                     <button
                       type="button"
                       onClick={() => handleOpenDocument(doc.id)}
                       className="flex items-center gap-3.5 flex-1 text-left cursor-pointer"
                     >
-                      <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-lg group-hover:bg-blue-600 group-hover:text-white transition-colors shadow-xs">
+                      <div className="w-11 h-11 rounded-xl bg-orange-50/80 border border-orange-100 text-orange-600 flex items-center justify-center font-bold text-lg group-hover:bg-orange-500 group-hover:text-white transition-colors shadow-xs">
                         📄
                       </div>
                       <div>
-                        <p className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors text-base">
+                        <p className="font-bold text-stone-800 group-hover:text-orange-600 transition-colors text-base">
                           {doc.title}
                         </p>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-stone-400">
                           Opened {formatDate(doc.lastOpened)} · ID: {doc.id.slice(0, 8)}...
                         </p>
                       </div>
@@ -453,7 +456,7 @@ export default function Home() {
                       <button
                         type="button"
                         onClick={() => handleCopyLink(doc.id, "editor")}
-                        className="text-xs px-2.5 py-1.5 text-slate-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors flex items-center gap-1 cursor-pointer font-medium"
+                        className="text-xs px-2.5 py-1.5 text-stone-600 hover:text-orange-700 hover:bg-orange-50/80 rounded-lg transition-colors flex items-center gap-1 cursor-pointer font-medium"
                       >
                         <Share2 size={13} />
                         <span>{copiedId === `${doc.id}-editor` ? "Copied!" : "Share Link"}</span>
@@ -462,7 +465,7 @@ export default function Home() {
                       <button
                         type="button"
                         onClick={() => handleDeleteDocument(doc.id)}
-                        className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                        className="p-1.5 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
                         title="Delete Document"
                       >
                         <Trash2 size={16} />
@@ -480,16 +483,16 @@ export default function Home() {
       {/* MODAL: NAME YOUR NEW DOCUMENT */}
       {/* ===================================================================== */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-7 max-w-md w-full border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+        <div className="fixed inset-0 z-50 bg-stone-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 sm:p-7 max-w-md w-full border border-stone-200 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-slate-900">
+              <h3 className="text-lg font-bold text-stone-800">
                 Create New Document
               </h3>
               <button
                 type="button"
                 onClick={() => setIsCreateModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer"
+                className="text-stone-400 hover:text-stone-600 p-1 rounded-lg cursor-pointer transition-colors"
               >
                 <X size={18} />
               </button>
@@ -497,7 +500,7 @@ export default function Home() {
 
             <form onSubmit={handleCreateDocument} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">
+                <label className="block text-xs font-bold text-stone-600 uppercase tracking-wider mb-2">
                   Document Title
                 </label>
                 <input
@@ -505,7 +508,7 @@ export default function Home() {
                   value={newDocName}
                   onChange={(e) => setNewDocName(e.target.value)}
                   placeholder="e.g. Sprint Planning Notes, Architecture Spec..."
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm text-slate-900 font-medium"
+                  className="w-full px-4 py-3 bg-[#FAF7F2] border border-stone-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-400/40 focus:border-orange-400 text-sm text-stone-800 font-medium placeholder-stone-400"
                   autoFocus
                 />
               </div>
@@ -514,13 +517,13 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="px-4 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl text-sm font-semibold transition-colors cursor-pointer"
+                  className="px-4 py-2.5 text-stone-600 hover:bg-stone-100 rounded-xl text-sm font-semibold transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-bold shadow-md shadow-blue-500/20 transition-all cursor-pointer"
+                  className="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold shadow-md shadow-orange-500/20 transition-all cursor-pointer hover:scale-[1.01] active:scale-[0.99]"
                 >
                   Create & Open
                 </button>
@@ -531,7 +534,7 @@ export default function Home() {
       )}
 
       {/* Footer */}
-      <footer className="max-w-6xl mx-auto px-6 py-6 text-center text-xs text-slate-400 border-t border-slate-200 w-full mt-10">
+      <footer className="max-w-6xl mx-auto px-6 py-6 text-center text-xs text-stone-400 border-t border-stone-200/80 w-full mt-10">
         <p>DocFix Collaborative Engine · Built with Yjs (CRDT) · TipTap v3 · Next.js · WebSockets</p>
       </footer>
     </div>
