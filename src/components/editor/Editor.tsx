@@ -574,9 +574,9 @@ function EditorSurface({
                 }`}
                 title="Simulate network conditions for judging"
               >
-                <option value="normal">⚡ Online</option>
-                <option value="lag">🐢 500ms Lag</option>
-                <option value="offline">🔌 Offline</option>
+                <option value="normal">⚡ Stable</option>
+                <option value="lag">🐢 Slow Network</option>
+                <option value="offline">✈️ Airplane Mode</option>
               </select>
             </div>
 
