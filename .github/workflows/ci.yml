@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# One CI run per branch: cancel superseded runs on force-push.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    name: Test + Build (blocking)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: CRDT tests (vitest)
+        run: npm test
+      - name: Build (next build)
+        run: npm run build
+
+  lint-report:
+    # Non-blocking for now: the codebase carries pre-existing lint debt
+    # (mostly react-hooks/set-state-in-effect in components). Make this
+    # blocking once the debt is paid down.
+    name: Lint (report-only)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Lint summary
+        if: always()
+        run: |
+          echo "### Lint report (non-blocking)" >> "$GITHUB_STEP_SUMMARY"
+          npm run lint 2>&1 | tail -5 >> "$GITHUB_STEP_SUMMARY" || true
